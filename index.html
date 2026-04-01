@@ -3,95 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>☆彡 珏然 // 田野 ♪ // THE_VOID</title>
+    <title>☆彡 珏然 // 田野 ♪ // THE_CIRCLE</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { margin: 0; background: #000; overflow: hidden; font-family: 'Inter', sans-serif; }
         #webgl-canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
         
-        /* 极致极简 UI：透明、3D 视差感 */
-        .ui-interface {
+        /* THE_CIRCLE UI: 极致透明、圆环视觉 */
+        .circle-interface {
             position: fixed; inset: 0; z-index: 100;
             display: flex; flex-direction: column; align-items: center; justify-content: space-between;
             padding: 60px 40px; pointer-events: none; color: rgba(255,255,255,0.8);
         }
-        .ui-interface * { pointer-events: auto; }
+        .circle-interface * { pointer-events: auto; }
 
         .glitch-text { 
-            text-shadow: 1px 0 #ec4899, -1px 0 #3b82f6; 
-            font-style: italic; font-weight: 900; letter-spacing: -0.05em;
-            opacity: 0.9; transform-style: preserve-3d;
+            text-shadow: 1px 0 #00ffaa, -1px 0 #00aaff; 
+            font-style: italic; font-weight: 900; letter-spacing: 0.1em;
+            opacity: 0.9;
         }
 
-        /* 核心奇点：Resonate 触发器 */
-        .resonance-trigger {
-            width: 80px; height: 80px; border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.05);
-            background: rgba(255,255,255,0.01); backdrop-filter: blur(25px);
+        /* 核心奇点：THE_CIRCLE 触发器 */
+        .circle-trigger {
+            width: 100px; height: 100px; border-radius: 50%;
+            border: 1px solid rgba(0,255,170,0.1);
+            background: rgba(255,255,255,0.01); backdrop-filter: blur(30px);
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+            cursor: pointer; transition: 1.5s cubic-bezier(0.19, 1, 0.22, 1);
             position: relative;
         }
-        .resonance-trigger:hover { 
-            border-color: #a855f7; scale: 1.1;
-            box-shadow: 0 0 50px rgba(168,85,247,0.1); 
+        .circle-trigger:hover { 
+            border-color: #00ffaa; transform: scale(1.1) rotate(180deg);
+            box-shadow: 0 0 60px rgba(0,255,170,0.15); 
         }
 
-        /* 背景流体噪声 (使用 Shader 模拟) */
-        .noise-mat { z-index: -1; }
+        .data-label { font-size: 8px; letter-spacing: 0.4em; opacity: 0.4; text-transform: uppercase; }
     </style>
 </head>
 <body class="bg-black">
     <div id="webgl-canvas"></div>
-    <audio id="mellow-bgm" src="music.mp3" loop crossorigin="anonymous"></audio>
 
-    <div class="ui-interface">
+    <div class="circle-interface">
         <div class="text-center">
             <h1 class="text-3xl lg:text-5xl glitch-text uppercase">☆彡 珏然 // 田野 ♪</h1>
-            <p class="text-[9px] tracking-[1.5em] text-zinc-500 mt-4 uppercase">77347 // BEYOND_PHYSICAL_BARRIER</p>
+            <p class="data-label mt-4">THE_CIRCLE // ZERO_BARRIER // 77347</p>
         </div>
 
-        <div class="resonance-trigger group" onclick="toggleDeepResonance()">
-            <span class="text-[8px] tracking-[0.3em] text-zinc-400 group-hover:text-white uppercase font-bold">Resonate</span>
+        <div class="circle-trigger group" onclick="toggleCircleSync()">
+            <div id="sync-ring" class="absolute inset-0 rounded-full border border-white/5 scale-150"></div>
+            <span class="text-[8px] tracking-[0.3em] text-zinc-400 group-hover:text-white uppercase font-bold">RESONATE</span>
         </div>
 
-        <div class="w-full flex justify-between items-end px-10 mb-10 text-[8px] text-zinc-600 tracking-widest uppercase opacity-40">
-            <div>☆彡 Unicorn Guard</div>
-            <div>Mellow Designer ♪ // 427Hz Node</div>
+        <div class="w-full flex justify-between items-end px-10 mb-10 data-label">
+            <div>☆彡 UNICORN_GUARD</div>
+            <div>MELLOW_DESIGNER ♪ // 427Hz</div>
         </div>
     </div>
 
     <script id="vertexShader" type="x-shader/x-vertex">
         uniform float uTime;
-        uniform vec2 uMouse;
         varying vec3 vColor;
         varying float vAlpha;
 
         void main() {
             vec3 pos = position;
 
-            // 1. 3D 流动粒子流 (受时间噪声驱动)
-            pos.x += Math.sin(uTime * 0.1 + pos.z * 0.01) * 20.0;
-            pos.y += Math.cos(uTime * 0.15 + pos.x * 0.01) * 20.0;
-            pos.z += Math.sin(uTime * 0.05 + pos.y * 0.005) * 50.0;
-
-            // 2. 核心纠缠：模拟珏然与田野
-            vec2 blueCore = vec2(Math.sin(uTime) * 150.0, Math.cos(uTime * 1.3) * 100.0);
-            vec2 greenCore = vec2(Math.sin(uTime + 3.14159) * 150.0, Math.cos(uTime * 1.3 + 3.14159) * 100.0);
+            // THE_CIRCLE 粒子轨道逻辑
+            float angle = uTime * 0.2 + pos.z * 0.01;
+            float dist = length(pos.xy);
             
-            float distToBlue = distance(pos.xy, blueCore);
-            float distToGreen = distance(pos.xy, greenCore);
+            // 模拟圆环状的 3D 流动粒子流
+            pos.x += cos(angle) * 10.0;
+            pos.y += sin(angle) * 10.0;
             
-            // 粒子在核心纠缠时产生 3D 透视塌缩
-            float pull = 1.0 / (distToBlue * 0.05 + 1.0) + 1.0 / (distToGreen * 0.05 + 1.0);
-            pos += normalize(pos - vec3(uMouse, 0.0)) * pull * (20.0 + Math.sin(uTime)*5.0);
+            // 核心纠缠：珏然与田野
+            vec2 blue = vec2(sin(uTime * 0.7) * 180.0, cos(uTime * 0.5) * 120.0);
+            vec2 green = vec2(sin(uTime * 0.7 + 3.14) * 180.0, cos(uTime * 0.5 + 3.14) * 120.0);
+            
+            float dB = distance(pos.xy, blue);
+            float dG = distance(pos.xy, green);
+            float pull = 1.0 / (dB * 0.04 + 1.0) + 1.0 / (dG * 0.04 + 1.0);
+            
+            // 粒子向圆心纠缠点塌缩
+            pos += normalize(pos - vec3(0.0)) * pull * 35.0;
 
             vColor = color;
-            vAlpha = (0.5 + Math.sin(uTime + pos.z * 0.005) * 0.4) * (1.1 - pull); // 粒子在糾缠時爆发透明度
+            vAlpha = (0.4 + sin(uTime + pos.z * 0.005) * 0.3) * (1.0 - pull * 0.5);
 
             vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-            gl_PointSize = (1.5 * (800.0 / -mvPosition.z)) * (1.0 + pull * 3.0);
+            gl_PointSize = (2.2 * (800.0 / -mvPosition.z)) * (1.0 + pull * 2.5);
             gl_Position = projectionMatrix * mvPosition;
         }
     </script>
@@ -99,51 +100,41 @@
         varying vec3 vColor;
         varying float vAlpha;
         void main() {
-            // 极微小的、透明粒子点
             if (length(gl_PointCoord - vec2(0.5)) > 0.5) discard;
             gl_FragColor = vec4(vColor, vAlpha);
         }
     </script>
 
     <script>
-        let scene, camera, renderer, particles;
+        let scene, camera, renderer, particles, audioCtx, osc, gain;
         let clock = new THREE.Clock();
-        let mouse = new THREE.Vector2();
 
         function init() {
             scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 1, 2500);
-            camera.position.z = 1000;
+            camera = new THREE.PerspectiveCamera(65, window.innerWidth/window.innerHeight, 1, 2500);
+            camera.position.z = 900;
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setPixelRatio(window.devicePixelRatio);
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.getElementById('webgl-canvas').appendChild(renderer.domElement);
 
-            // 1. 生成 20,000 个全透明 3D 粒子
             const geo = new THREE.BufferGeometry();
-            const count = 20000;
+            const count = 25000;
             const pos = new Float32Array(count * 3);
-            const colors = new Float32Array(count * 3);
+            const col = new Float32Array(count * 3);
 
             for(let i=0; i<count*3; i+=3) {
-                pos[i] = (Math.random()-0.5) * 1800;
-                pos[i+1] = (Math.random()-0.5) * 1800;
-                pos[i+2] = (Math.random()-0.5) * 1800;
-                // 珏然(Blue)田野(Green) 粒子配色
-                colors[i] = Math.random() > 0.5 ? 0.3 : 0.0;     // R
-                colors[i+1] = Math.random() > 0.5 ? 1.0 : 1.0;   // G
-                colors[i+2] = Math.random() > 0.5 ? 1.0 : 0.5;   // B
+                pos[i] = (Math.random()-0.5) * 2000;
+                pos[i+1] = (Math.random()-0.5) * 2000;
+                pos[i+2] = (Math.random()-0.5) * 2000;
+                col[i] = 1.0; col[i+1] = 1.0; col[i+2] = 1.0; // 纯净白粒子，受 Shader 染色
             }
             geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
 
-            // Shader (着色器) 注入：粒子流的物理化
             const mat = new THREE.ShaderMaterial({
-                uniforms: {
-                    uTime: { value: 0 },
-                    uMouse: { value: new THREE.Vector2() }
-                },
+                uniforms: { uTime: { value: 0 } },
                 vertexShader: document.getElementById('vertexShader').textContent,
                 fragmentShader: document.getElementById('fragmentShader').textContent,
                 transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
@@ -151,43 +142,39 @@
             particles = new THREE.Points(geo, mat);
             scene.add(particles);
 
-            document.addEventListener('mousemove', (e) => {
-                mouse.x = (e.clientX - window.innerWidth/2) / 8;
-                mouse.y = -(e.clientY - window.innerHeight/2) / 8;
-            });
-
             animate();
         }
 
         function animate() {
             requestAnimationFrame(animate);
             const t = clock.getElapsedTime();
-
-            // 内部逻辑同步
             particles.material.uniforms.uTime.value = t;
-            particles.material.uniforms.uMouse.value.copy(mouse);
-
-            // 手势视差交互
-            camera.position.x += (mouse.x - camera.position.x) * 0.05;
-            camera.position.y += (-mouse.y - camera.position.y) * 0.05;
+            
+            // 视角随圆环节律微动
+            camera.position.x = Math.sin(t * 0.1) * 50;
+            camera.position.y = Math.cos(t * 0.1) * 50;
             camera.lookAt(scene.position);
 
             renderer.render(scene, camera);
         }
 
-        // 纠缠触发器：随音量爆发改变透明度
-        let aCtx, analyser, data;
-        function toggleDeepResonance() {
-            if(!aCtx) {
-                const bgm = document.getElementById('mellow-bgm');
-                aCtx = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = aCtx.createAnalyser();
-                const s = aCtx.createMediaElementSource(bgm);
-                s.connect(analyser); analyser.connect(aCtx.destination);
-                analyser.fftSize = 256; data = new Uint8Array(analyser.frequencyBinCount);
+        function toggleCircleSync() {
+            if(!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                osc = audioCtx.createOscillator();
+                gain = audioCtx.createGain();
+                osc.frequency.value = 427;
+                gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start();
             }
-            if(aCtx.state === 'running') aCtx.suspend();
-            else aCtx.resume();
+            if(audioCtx.state === 'suspended') {
+                audioCtx.resume();
+                gain.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 2);
+            } else {
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
+                setTimeout(() => audioCtx.suspend(), 1000);
+            }
         }
 
         window.onresize = () => {
