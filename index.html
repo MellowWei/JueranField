@@ -5,146 +5,131 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>☆ 彡 珏然 // 田野 ♪ ★ // THE_CIRCLE</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: 'Inter', -apple-system, sans-serif; cursor: crosshair; }
+        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; cursor: none; }
         #webgl-canvas { position: fixed; inset: 0; z-index: 1; }
-        .ui-interface { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 40px; text-align: center; }
-        .ui-interface * { pointer-events: auto; }
-        .title { color: #fff; font-weight: 900; font-style: italic; font-size: 1.5rem; letter-spacing: 0.15em; text-shadow: 0 0 20px rgba(0,255,170,0.5); transform: preserve-3d; }
-        .hint { color: rgba(255,255,255,0.2); font-size: 9px; margin-top: 10px; letter-spacing: 1.2em; text-transform: uppercase; }
-        .footer-data { font-size: 8px; color: rgba(255,255,255,0.1); letter-spacing: 0.3em; text-transform: uppercase; display: flex; justify-content: space-between; padding: 0 60px; }
+        .ui { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 50px; text-align: center; }
+        .ui * { pointer-events: auto; }
+        .title { color: #fff; font-weight: 900; font-style: italic; font-size: 1.6rem; letter-spacing: 0.1em; text-shadow: 0 0 25px rgba(0,255,170,0.6); }
+        #cursor { width: 12px; height: 12px; background: #00ffaa; border-radius: 50%; position: fixed; pointer-events: none; z-index: 999; box-shadow: 0 0 15px #00ffaa; transform: translate(-50%, -50%); }
     </style>
 </head>
 <body class="bg-black">
+    <div id="cursor"></div>
     <canvas id="webgl-canvas"></canvas>
-    <div class="ui-interface">
+
+    <div class="ui">
         <div>
             <h1 class="title uppercase">☆ 彡 珏然 // 田野 ♪ ★</h1>
-            <p class="hint">Zero Barrier // 427Hz Resonance // 77347</p>
+            <p class="text-[8px] tracking-[1.5em] text-white/30 mt-4 uppercase">77347 // 427Hz Resonance</p>
         </div>
-        <div class="footer-data">
-            <div>Spatial_A: Home_ Void // 精细室内堆砌</div>
-            <div>Spatial_B: Cabin_ Void // GALAXY_科幻版本</div>
+        <div style="text-align: center; color: rgba(255,255,255,0.2); font-size: 8px; letter-spacing: 0.8em; text-transform: uppercase;">Hold to Morph Space</div>
+        <div class="flex justify-between items-end px-10 mb-4 text-[8px] opacity-20 tracking-widest uppercase text-white">
+            <div>☆ 彡 UNICORN_GUARD</div>
+            <div>SYNC_NODE // THE_CIRCLE ★</div>
         </div>
     </div>
 
-    <script id="vertexShader" type="x-shader/x-vertex">
+    <script id="vShader" type="x-shader/x-vertex">
         uniform float uTime;
         uniform float uMorph;
-        uniform vec3 uBlueCore;
-        uniform vec3 uGreenCore;
-        varying vec3 vColor;
-        varying float vAlpha;
+        uniform vec3 uB;
+        uniform vec3 uG;
+        varying vec3 vCol;
+        varying float vA;
 
         void main() {
             vec3 p = position;
-            
-            // 空间 Morphing：家 (有序) -> 银河 (混沌)
-            // 初始形状：简约家具、床、植物的几何骨架
+
+            // 1. 空间形状重组 (Spatial Shape Alignment)
+            // 初始：有序的家园态 (Home Point Cloud)
             vec3 pHome = position;
-            
-            // 目标形状：太空舱舷窗、银河涡旋
-            float angle = pHome.x * 0.002 + uTime * 0.2;
-            float dist = length(pHome.xy);
+            // 目标：深邃的银河旋转态 (Galaxy Point Cloud)
+            float angle = length(pHome.xy) * 0.005 + uTime * 0.1;
             vec3 pSpace = vec3(
-                cos(angle) * dist * 1.5,
-                sin(angle) * dist * 1.5,
-                sin(dist * 0.01) * 300.0 // 增加 Z 轴深度模拟太空舱空间
+                cos(angle) * pHome.x - sin(angle) * pHome.y,
+                sin(angle) * pHome.x + cos(angle) * pHome.y,
+                pHome.z + sin(length(pHome.xy) * 0.01) * 400.0
             );
 
-            // 执行多维 Morphing
             p = mix(pHome, pSpace, uMorph);
 
-            // 纠缠引力：珏然(Blue)与田野(Green)的碰撞
-            float distToBlue = distance(p, uBlueCore);
-            float distToGreen = distance(p, uGreenCore);
-            float pull = 1.0 / (distToBlue * 0.04 + 1.0) + 1.0 / (distToGreen * 0.04 + 1.0);
-            
-            // 消除物理隔离：粒子向核心坍缩，形成接触感
-            p += normalize(uBlueCore - p) * pull * (25.0 + sin(uTime)*5.0);
-            p.z += sin(uTime * 0.5 + p.x * 0.02) * 20.0 * (1.1 - uMorph);
+            // 2. 纠缠引力 (Entanglement Gravity)
+            float dB = distance(p, uB); float dG = distance(p, uG);
+            float pull = 1.0 / (dB * 0.05 + 1.0) + 1.0 / (dG * 0.05 + 1.0);
+            p += normalize(uB - p) * pull * (60.0 + sin(uTime * 2.0) * 10.0);
 
-            vColor = color + (pull * vec3(0.0, 1.0, 0.7)); // 糾缠時爆发蓝色輝光
-            vAlpha = (0.4 + sin(uTime + p.z * 0.005) * 0.3) * (1.1 - pull); // 呼吸态透明度
+            vCol = color + (pull * vec3(0.0, 1.0, 0.8));
+            vA = (0.4 + sin(uTime + p.z * 0.01) * 0.3) * (1.1 - pull);
 
-            vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
-            gl_PointSize = (2.4 * (950.0 / -mvPosition.z)) * (1.0 + pull * 3.0);
-            gl_Position = projectionMatrix * mvPosition;
+            vec4 mvp = modelViewMatrix * vec4(p, 1.0);
+            gl_PointSize = (2.6 * (1000.0 / -mvp.z)) * (1.0 + pull * 2.5);
+            gl_Position = projectionMatrix * mvp;
         }
     </script>
-    <script id="fragmentShader" type="x-shader/x-fragment">
-        varying vec3 vColor;
-        varying float vAlpha;
+    <script id="fShader" type="x-shader/x-fragment">
+        varying vec3 vCol; varying float vA;
         void main() {
-            // 极致纯净与灵气的点，无贴图干扰
-            if (length(gl_PointCoord - vec2(0.5)) > 0.5) discard;
-            gl_FragColor = vec4(vColor, vAlpha);
+            if (length(gl_PointCoord - 0.5) > 0.5) discard;
+            gl_FragColor = vec4(vCol, vA);
         }
     </script>
 
     <script>
-        let scene, camera, renderer, particles, blue, green;
+        let scene, camera, renderer, points, blue, green;
         let mTarget = 0, curMorph = 0;
-        let mouseX = 0, mouseY = 0;
         const clock = new THREE.Clock();
+        const mouse = new THREE.Vector3();
 
         function init() {
             scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(65, window.innerWidth/window.innerHeight, 1, 3500);
-            camera.position.z = 1000;
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 4000);
+            camera.position.z = 1100;
 
             renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-canvas'), antialias: true, alpha: true });
-            renderer.setPixelRatio(window.devicePixelRatio);
             renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-            // 1. 生成 30,000 个高精灵气粒子
+            // 粒子系统：60,000个点构成的空间骨架
             const geo = new THREE.BufferGeometry();
-            const count = 30000;
+            const count = 60000;
             const pos = new Float32Array(count * 3);
-            const colors = new Float32Array(count * 3);
+            const col = new Float32Array(count * 3);
 
             for(let i=0; i<count; i++) {
-                // 初始化：模拟温润室内的几何堆砌感
-                pos[i*3] = (Math.random()-0.5) * 2000;
-                pos[i*3+1] = (Math.random()-0.5) * 1500;
-                pos[i*3+2] = (Math.random()-0.5) * 1200;
-                
-                colors[i*3] = Math.random() > 0.5 ? 0.9 : 1;     // R
-                colors[i*3+1] = Math.random() > 0.5 ? 1 : 1;     // G
-                colors[i*3+2] = Math.random() > 0.5 ? 0.9 : 1;   // B
+                pos[i*3] = (Math.random()-0.5) * 2200;
+                pos[i*3+1] = (Math.random()-0.5) * 1600;
+                pos[i*3+2] = (Math.random()-0.5) * 1000;
+                col[i*3] = 0.95; col[i*3+1] = 0.95; col[i*3+2] = 1.0;
             }
             geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
 
             const mat = new THREE.ShaderMaterial({
                 uniforms: {
-                    uTime: { value: 0 },
-                    uMorph: { value: 0 },
-                    uBlueCore: { value: new THREE.Vector3() },
-                    uGreenCore: { value: new THREE.Vector3() }
+                    uTime: { value: 0 }, uMorph: { value: 0 },
+                    uB: { value: new THREE.Vector3() }, uG: { value: new THREE.Vector3() }
                 },
-                vertexShader: document.getElementById('vertexShader').textContent,
-                fragmentShader: document.getElementById('fragmentShader').textContent,
+                vertexShader: document.getElementById('vShader').textContent,
+                fragmentShader: document.getElementById('fShader').textContent,
                 transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
             });
-            particles = new THREE.Points(geo, mat);
-            scene.add(particles);
 
-            // 珏然(Blue) 与 田野(Green) 核心纠缠
-            const coreGeo = new THREE.SphereGeometry(6, 32, 32);
-            blue = new THREE.Mesh(coreGeo, new THREE.MeshBasicMaterial({ color: 0x00aaff }));
-            green = new THREE.Mesh(coreGeo, new THREE.MeshBasicMaterial({ color: 0x00ffaa }));
-            blue.add(new THREE.PointLight(0x00aaff, 5, 400));
-            green.add(new THREE.PointLight(0x00ffaa, 5, 400));
+            points = new THREE.Points(geo, mat); scene.add(points);
+            blue = new THREE.Mesh(new THREE.SphereGeometry(5), new THREE.MeshBasicMaterial({color: 0x00aaff}));
+            green = new THREE.Mesh(new THREE.SphereGeometry(5), new THREE.MeshBasicMaterial({color: 0x00ffaa}));
             scene.add(blue); scene.add(green);
 
-            document.addEventListener('mousemove', (e) => {
-                mouseX = (e.clientX - window.innerWidth/2) / 10;
-                mouseY = -(e.clientY - window.innerHeight/2) / 10;
+            window.addEventListener('mousemove', (e) => {
+                mouse.x = (e.clientX - window.innerWidth/2);
+                mouse.y = -(e.clientY - window.innerHeight/2);
+                const cursor = document.getElementById('cursor');
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
             });
-            // 互动：长按切换空间
-            document.addEventListener('mousedown', () => mTarget = 1);
-            document.addEventListener('mouseup', () => mTarget = 0);
+            window.addEventListener('mousedown', () => mTarget = 1);
+            window.addEventListener('mouseup', () => mTarget = 0);
 
             animate();
         }
@@ -152,25 +137,21 @@
         function animate() {
             requestAnimationFrame(animate);
             const t = clock.getElapsedTime();
+            curMorph += (mTarget - curMorph) * 0.025;
             
-            // 叙事 Morphing：平滑切换
-            curMorph += (mTarget - curMorph) * 0.02;
-            particles.material.uniforms.uMorph.value = curMorph;
-            particles.material.uniforms.uTime.value = t;
+            points.material.uniforms.uTime.value = t;
+            points.material.uniforms.uMorph.value = curMorph;
 
-            // 核心纠缠算法：量子追逐
-            const radius = 240 + Math.sin(t * 0.5) * 60;
-            blue.position.set(Math.sin(t * 0.8) * radius + mouseX, Math.cos(t * 1.1) * (radius*0.6) + mouseY, Math.sin(t * 0.5) * 200);
-            green.position.set(Math.sin(t * 0.8 + 3.14) * radius + mouseX, Math.cos(t * 1.1 + 3.14) * (radius*0.6) + mouseY, Math.sin(t * 0.5 + 3.14) * 200);
+            const r = 260 + Math.sin(t*0.5)*70;
+            blue.position.set(Math.sin(t*0.7)*r + mouse.x/5, Math.cos(t*0.9)*r*0.4 + mouse.y/5, Math.sin(t*0.4)*200);
+            green.position.set(Math.sin(t*0.7+3.14)*r + mouse.x/5, Math.cos(t*0.9+3.14)*r*0.4 + mouse.y/5, Math.sin(t*0.4+3.14)*200);
 
-            // 粒子 Uniform 同步
-            particles.material.uniforms.uBlueCore.value.copy(blue.position);
-            particles.material.uniforms.uGreenCore.value.copy(green.position);
+            points.material.uniforms.uB.value.copy(blue.position);
+            points.material.uniforms.uG.value.copy(green.position);
 
-            // 手势控制视差
-            camera.position.x += (mouseX*0.8 - camera.position.x) * 0.05;
-            camera.position.y += (-mouseY*0.8 - camera.position.y) * 0.05;
-            camera.lookAt(scene.position);
+            camera.position.x += (mouse.x/10 - camera.position.x) * 0.05;
+            camera.position.y += (mouse.y/10 - camera.position.y) * 0.05;
+            camera.lookAt(0,0,0);
 
             renderer.render(scene, camera);
         }
