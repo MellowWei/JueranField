@@ -3,162 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>☆彡 珏然 // 田野 : CONVERGENCE_ULTIMA ♪</title>
+    <title>☆彡 珏然 // 田野 : Zero Barrier ♪</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         body { margin: 0; background: #000; overflow: hidden; font-family: 'Inter', sans-serif; color: #fff; }
-        #webgl-canvas { position: fixed; inset: 0; z-index: 1; }
+        #webgl-canvas { position: fixed; inset: 0; z-index: 1; cursor: crosshair; }
         
-        /* 极致透明 UI 层 */
-        .ui-interface { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 40px; }
-        .ui-interface * { pointer-events: auto; }
-        
-        .sovereign-mark { font-weight: 900; font-style: italic; text-shadow: 0 0 20px rgba(0,255,170,0.5); letter-spacing: -0.01em; }
-        
-        /* 427Hz 同步触控奇点 */
-        .sync-portal { 
-            width: 80px; height: 80px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.08);
-            background: rgba(255,255,255,0.03); backdrop-filter: blur(25px);
-            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 1s cubic-bezier(0.19, 1, 0.22, 1);
+        .ui-overlay { 
+            position: fixed; inset: 0; z-index: 100; pointer-events: none; 
+            display: flex; flex-direction: column; justify-content: space-between; padding: 50px; 
         }
-        .sync-portal:hover { border-color: #00ffaa; scale: 1.1; box-shadow: 0 0 40px rgba(0,255,170,0.2); }
+        .ui-overlay * { pointer-events: auto; }
+        
+        .sovereign-header { text-align: center; }
+        .sovereign-title { 
+            font-weight: 900; font-style: italic; font-size: clamp(1.2rem, 4vw, 3rem);
+            letter-spacing: -0.02em; text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(0,255,170,0.4); 
+        }
+
+        .sync-portal {
+            width: 70px; height: 70px; border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.02);
+            backdrop-filter: blur(30px); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+            margin: 0 auto;
+        }
+        .sync-portal:hover { border-color: #00ffaa; scale: 1.15; box-shadow: 0 0 50px rgba(0,255,170,0.2); }
+
+        .data-footer { 
+            display: flex; justify-content: space-between; width: 100%; 
+            font-size: 9px; font-weight: bold; letter-spacing: 0.3em; opacity: 0.3; text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
-    <div id="webgl-canvas"></div>
+    <canvas id="webgl-canvas"></canvas>
 
-    <div class="ui-interface">
-        <div class="text-center">
-            <h1 class="text-3xl lg:text-5xl sovereign-mark uppercase">☆彡 珏然 // 田野 : Zero Distance ♪</h1>
-            <p class="text-[9px] tracking-[1.5em] text-zinc-500 mt-4 uppercase">77347 // BEYOND_PHYSICAL_BARRIER</p>
+    <div class="ui-overlay">
+        <div class="sovereign-header">
+            <h1 class="sovereign-title">☆彡 珏然 // 田野 ♪</h1>
+            <p class="text-[8px] tracking-[1.8em] text-zinc-500 mt-4 uppercase">Beyond Physical Barriers // 77347</p>
         </div>
 
-        <div class="flex justify-center">
-            <div class="sync-portal group" onclick="toggleConvergence()">
-                <div id="btn-label" class="text-[8px] tracking-[0.4em] text-zinc-400 group-hover:text-white uppercase font-bold">Resonate</div>
-            </div>
+        <div class="sync-portal group" onclick="toggleResonance()">
+            <div id="btn-text" class="text-[8px] tracking-[0.4em] text-zinc-400 group-hover:text-white uppercase font-bold">Resonate</div>
         </div>
 
-        <div class="flex justify-between items-end opacity-40">
-            <div class="text-left">
-                <p class="text-[10px] font-bold">SPATIAL_A: HOME</p>
-                <p class="text-[8px] tracking-widest">MINIMAL_室内_堆砌</p>
-            </div>
-            <div class="text-right">
-                <p class="text-[10px] font-bold">SPATIAL_B: CABIN</p>
-                <p class="text-[8px] tracking-widest">GALAXY_银河_科幻</p>
-            </div>
+        <div class="data-footer">
+            <div>Spatial_A: Home_Void</div>
+            <div>Spatial_B: Cabin_Galaxy</div>
         </div>
     </div>
 
-    <script id="vertexShader" type="x-shader/x-vertex">
+    <script id="vShader" type="x-shader/x-vertex">
         varying vec3 vColor;
         varying float vAlpha;
         uniform float uTime;
-        uniform vec3 uBlueCore;
-        uniform vec3 uGreenCore;
-
-        // 简易噪声函数，用于空间的流动感
-        float noise(vec2 p) { return sin(p.x*10.0)*sin(p.y*10.0); }
+        uniform vec3 uBlue;
+        uniform vec3 uGreen;
 
         void main() {
             vec3 pos = position;
 
-            // 1. 物理障碍消除 (GPU 吸引力算法)
-            float distToBlue = distance(pos, uBlueCore);
-            float distToGreen = distance(pos, uGreenCore);
+            // 1. 纠缠引力算法：消除物理隔离
+            float dBlue = distance(pos, uBlue);
+            float dGreen = distance(pos, uGreen);
+            float pull = 1.0 / (dBlue * 0.05 + 1.0) + 1.0 / (dGreen * 0.05 + 1.0);
             
-            // 两点靠近时，空间塌缩，粒子形成“触碰”的堆砌
-            float pull = 1.0 / (distToBlue * 0.04 + 1.0) + 1.0 / (distToGreen * 0.04 + 1.0);
-            pos += normalize(uBlueCore - pos) * pull * (20.0 + sin(uTime)*5.0);
+            // 粒子向核心坍缩，形成接触感
+            pos += normalize(uBlue - pos) * pull * (25.0 + sin(uTime * 2.0) * 5.0);
 
-            // 2. 空间态 Morphing (家 -> 宇宙 -> 太空舱)
-            // 模拟 `image_2.png` 室内柔软的亲密感 vs `image_9.png` 银河的流动
-            float morphWave = sin(uTime * 0.2 + pos.x * 0.01);
-            pos.y += morphWave * 15.0; // 家和宇宙的周期重组
-            if(abs(pos.x) > 300.0) pos.x += cos(uTime*0.1)*50.0; // 宇宙空间的无垠感
+            // 2. 空间多重态切换：家 vs 太空舱 vs 银河
+            float morph = sin(uTime * 0.15);
+            pos.y += morph * 20.0 * sin(pos.x * 0.01);
+            pos.z += cos(uTime * 0.1) * 30.0;
 
             vColor = color;
-            vAlpha = (0.5 + Math.sin(uTime + pos.z * 0.005) * 0.4) * (1.0 - pull * 0.6); // 呼吸态透明度
+            vAlpha = (0.4 + sin(uTime + pos.z * 0.01) * 0.3) * (1.1 - pull);
 
-            vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-            gl_PointSize = (1.8 * (800.0 / -mvPosition.z)) * (1.0 + pull * 2.0); // 纠缠时粒子爆发
-            gl_Position = projectionMatrix * mvPosition;
+            vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
+            gl_PointSize = (1.6 * (850.0 / -mvPos.z)) * (1.0 + pull * 3.0);
+            gl_Position = projectionMatrix * mvPos;
         }
     </script>
-    <script id="fragmentShader" type="x-shader/x-fragment">
+    <script id="fShader" type="x-shader/x-fragment">
         varying vec3 vColor;
         varying float vAlpha;
         void main() {
-            // 极致纯净与灵气的点，无贴图干扰
             if (length(gl_PointCoord - vec2(0.5)) > 0.5) discard;
             gl_FragColor = vec4(vColor, vAlpha);
         }
     </script>
 
     <script>
-        let scene, camera, renderer, particles, blue, green;
-        let audioCtx, osc, gain, lfo;
+        let scene, camera, renderer, points, blue, green;
+        let audio, osc, gain;
         let mouseX = 0, mouseY = 0;
         const clock = new THREE.Clock();
 
         function init() {
             scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(65, window.innerWidth/window.innerHeight, 1, 2500);
-            camera.position.z = 850;
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 3000);
+            camera.position.z = 900;
 
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, canvas: document.getElementById('webgl-canvas') });
-            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-canvas'), antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
 
-            // 1. 灵气粒子流：精细化全空间重构 (25,000个点)
+            // 构建 3D 物理空间粒子 (30,000个高精点)
             const geo = new THREE.BufferGeometry();
-            const count = 25000;
+            const count = 30000;
             const pos = new Float32Array(count * 3);
-            const colors = new Float32Array(count * 3);
+            const col = new Float32Array(count * 3);
 
             for(let i=0; i<count; i++) {
-                // 分布模拟从温润室内塌缩回科幻银河的质感
-                pos[i*3] = (Math.random()-0.5) * 1800;
-                pos[i*3+1] = (Math.random()-0.5) * 1200;
-                pos[i*3+2] = (Math.random()-0.5) * 1500;
+                pos[i*3] = (Math.random()-0.5) * 2000;
+                pos[i*3+1] = (Math.random()-0.5) * 1500;
+                pos[i*3+2] = (Math.random()-0.5) * 1800;
                 
-                const c = Math.random();
-                colors[i*3] = c < 0.2 ? 1 : 1;     // 珏然(蓝)粒子染白
-                colors[i*3+1] = c < 0.2 ? 1 : 1; 
-                colors[i*3+2] = c < 0.2 ? 1 : 1; 
+                // 初始颜色：模拟银河科幻版本的冷冽感
+                const r = Math.random();
+                col[i*3] = r > 0.8 ? 0.8 : 1; 
+                col[i*3+1] = r > 0.8 ? 0.9 : 1;
+                col[i*3+2] = 1;
             }
             geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
 
-            // Shader (着色器) 注入：粒子流的物理化
             const mat = new THREE.ShaderMaterial({
                 uniforms: {
                     uTime: { value: 0 },
-                    uBlueCore: { value: new THREE.Vector3() },
-                    uGreenCore: { value: new THREE.Vector3() }
+                    uBlue: { value: new THREE.Vector3() },
+                    uGreen: { value: new THREE.Vector3() }
                 },
-                vertexShader: document.getElementById('vertexShader').textContent,
-                fragmentShader: document.getElementById('fragmentShader').textContent,
+                vertexShader: document.getElementById('vShader').textContent,
+                fragmentShader: document.getElementById('fShader').textContent,
                 transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
             });
-            particles = new THREE.Points(geo, mat);
-            scene.add(particles);
 
-            // 2. 蓝色(珏然) 与 绿色(田野) 核心纠缠
-            const coreGeo = new THREE.SphereGeometry(8, 32, 32);
-            blue = new THREE.Mesh(coreGeo, new THREE.MeshBasicMaterial({ color: 0x00aaff, transparent: true, opacity: 0.8 }));
-            green = new THREE.Mesh(coreGeo, new THREE.MeshBasicMaterial({ color: 0x00ffaa, transparent: true, opacity: 0.8 }));
+            points = new THREE.Points(geo, mat);
+            scene.add(points);
+
+            // 珏然(Blue) 与 田野(Green) 纠缠核心
+            const cGeo = new THREE.SphereGeometry(6, 32, 32);
+            blue = new THREE.Mesh(cGeo, new THREE.MeshBasicMaterial({ color: 0x00aaff }));
+            green = new THREE.Mesh(cGeo, new THREE.MeshBasicMaterial({ color: 0x00ffaa }));
             
-            // 增加辉光效果，参考 `image_9.png` 核心亮度
-            blue.add(new THREE.PointLight(0x00aaff, 5, 400));
-            green.add(new THREE.PointLight(0x00ffaa, 5, 400));
+            blue.add(new THREE.PointLight(0x00aaff, 6, 400));
+            green.add(new THREE.PointLight(0x00ffaa, 6, 400));
 
             scene.add(blue); scene.add(green);
 
             document.addEventListener('mousemove', (e) => {
-                mouseX = (e.clientX - window.innerWidth/2) / 8;
-                mouseY = (e.clientY - window.innerHeight/2) / 8;
+                mouseX = (e.clientX - window.innerWidth/2) / 10;
+                mouseY = (e.clientY - window.innerHeight/2) / 10;
             });
 
             animate();
@@ -167,55 +166,42 @@
         function animate() {
             requestAnimationFrame(animate);
             const t = clock.getElapsedTime();
+            points.material.uniforms.uTime.value = t;
 
-            // 内部逻辑同步：粒子流受 Uniform 实时控制
-            particles.material.uniforms.uTime.value = t;
+            // 纠缠物理模拟：蓝绿点量子跃迁
+            const r = 240 + Math.sin(t * 0.5) * 80;
+            blue.position.set(Math.sin(t * 0.7) * r + mouseX, Math.cos(t * 0.9) * (r*0.5) + mouseY, Math.sin(t * 0.4) * 250);
+            green.position.set(Math.sin(t * 0.7 + Math.PI) * r + mouseX, Math.cos(t * 0.9 + Math.PI) * (r*0.5) + mouseY, Math.sin(t * 0.4 + Math.PI) * 250);
 
-            // 核心纠缠算法：蓝绿点的量子追逐
-            const radius = 220 + Math.sin(t * 0.4) * 60;
-            blue.position.set(Math.sin(t * 0.8) * radius + mouseX, Math.cos(t * 1.1) * (radius*0.6) + mouseY, Math.sin(t * 0.5) * 200);
-            green.position.set(Math.sin(t * 0.8 + Math.PI) * radius + mouseX, Math.cos(t * 1.1 + Math.PI) * (radius*0.6) + mouseY, Math.sin(t * 0.5 + Math.PI) * 200);
+            points.material.uniforms.uBlue.value.copy(blue.position);
+            points.material.uniforms.uGreen.value.copy(green.position);
 
-            // 粒子 Uniform 同步
-            particles.material.uniforms.uBlueCore.value.copy(blue.position);
-            particles.material.uniforms.uGreenCore.value.copy(green.position);
-
-            // 手势控制空间视差
-            camera.position.x += (mouseX*0.8 - camera.position.x) * 0.05;
-            camera.position.y += (-mouseY*0.8 - camera.position.y) * 0.05;
+            camera.position.x += (mouseX*0.5 - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY*0.5 - camera.position.y) * 0.05;
             camera.lookAt(scene.position);
 
             renderer.render(scene, camera);
         }
 
-        // 427Hz 美妙音频合成
-        function toggleConvergence() {
-            if(!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                osc = audioCtx.createOscillator();
-                gain = audioCtx.createGain();
-                
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(427, audioCtx.currentTime); // 锁定 427Hz 纯净频率
-                
-                // 增加泛音谐律，营造“美妙感”
-                const filter = audioCtx.createBiquadFilter();
-                filter.type = 'lowpass'; filter.frequency.value = 800;
-
-                gain.gain.setValueAtTime(0, audioCtx.currentTime);
-                osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+        function toggleResonance() {
+            if(!audio) {
+                audio = new (window.AudioContext || window.webkitAudioContext)();
+                osc = audio.createOscillator();
+                gain = audio.createGain();
+                osc.frequency.value = 427; // 427Hz 纯净对齐
+                gain.gain.setValueAtTime(0, audio.currentTime);
+                osc.connect(gain); gain.connect(audio.destination);
                 osc.start();
             }
-
-            const label = document.getElementById('btn-label');
-            if(audioCtx.state === 'suspended') {
-                audioCtx.resume();
-                gain.gain.linearRampToValueAtTime(0.06, audioCtx.currentTime + 1.5); // 淡入
-                label.innerText = "SYNCED";
+            const label = document.getElementById('btn-text');
+            if(audio.state === 'suspended') {
+                audio.resume();
+                gain.gain.linearRampToValueAtTime(0.06, audio.currentTime + 2);
+                label.innerText = "Synced";
             } else {
-                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1); // 淡出
-                setTimeout(() => audioCtx.suspend(), 1000);
-                label.innerText = "RESONATE";
+                gain.gain.linearRampToValueAtTime(0, audio.currentTime + 1);
+                setTimeout(() => audio.suspend(), 1000);
+                label.innerText = "Resonate";
             }
         }
 
