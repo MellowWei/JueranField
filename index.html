@@ -7,173 +7,149 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: 'Inter', sans-serif; }
+        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
         #webgl-canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
-        
-        /* THE_CIRCLE UI: 极致透明、圆环视觉 */
-        .circle-interface {
+        .circle-ui {
             position: fixed; inset: 0; z-index: 100;
             display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-            padding: 60px 40px; pointer-events: none; color: rgba(255,255,255,0.8);
+            padding: 60px 40px; pointer-events: none; color: rgba(255,255,255,0.7);
         }
-        .circle-interface * { pointer-events: auto; }
-
-        .glitch-text { 
-            text-shadow: 1px 0 #00ffaa, -1px 0 #00aaff; 
+        .circle-ui * { pointer-events: auto; }
+        .glitch-title { 
+            text-shadow: 0 0 15px rgba(0,255,170,0.5); 
             font-style: italic; font-weight: 900; letter-spacing: 0.1em;
-            opacity: 0.9;
         }
-
-        /* 核心奇点：THE_CIRCLE 触发器 */
-        .circle-trigger {
-            width: 100px; height: 100px; border-radius: 50%;
-            border: 1px solid rgba(0,255,170,0.1);
-            background: rgba(255,255,255,0.01); backdrop-filter: blur(30px);
+        .sync-btn {
+            width: 80px; height: 80px; border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.02); backdrop-filter: blur(20px);
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 1.5s cubic-bezier(0.19, 1, 0.22, 1);
-            position: relative;
+            cursor: pointer; transition: 1s cubic-bezier(0.19, 1, 0.22, 1);
         }
-        .circle-trigger:hover { 
-            border-color: #00ffaa; transform: scale(1.1) rotate(180deg);
-            box-shadow: 0 0 60px rgba(0,255,170,0.15); 
-        }
-
-        .data-label { font-size: 8px; letter-spacing: 0.4em; opacity: 0.4; text-transform: uppercase; }
+        .sync-btn:hover { border-color: #00ffaa; transform: scale(1.1); box-shadow: 0 0 40px rgba(0,255,170,0.2); }
     </style>
 </head>
 <body class="bg-black">
-    <div id="webgl-canvas"></div>
+    <canvas id="webgl-canvas"></canvas>
 
-    <div class="circle-interface">
+    <div class="circle-ui">
         <div class="text-center">
-            <h1 class="text-3xl lg:text-5xl glitch-text uppercase">☆彡 珏然 // 田野 ♪</h1>
-            <p class="data-label mt-4">THE_CIRCLE // ZERO_BARRIER // 77347</p>
+            <h1 class="text-2xl lg:text-4xl glitch-title uppercase">☆彡 珏然 // 田野 ♪</h1>
+            <p class="text-[8px] tracking-[1.5em] opacity-40 mt-4 uppercase">THE_CIRCLE // 77347</p>
         </div>
 
-        <div class="circle-trigger group" onclick="toggleCircleSync()">
-            <div id="sync-ring" class="absolute inset-0 rounded-full border border-white/5 scale-150"></div>
-            <span class="text-[8px] tracking-[0.3em] text-zinc-400 group-hover:text-white uppercase font-bold">RESONATE</span>
+        <div class="sync-btn group" onclick="toggleResonance()">
+            <span class="text-[8px] tracking-[0.3em] opacity-50 group-hover:opacity-100 font-bold">RESONATE</span>
         </div>
 
-        <div class="w-full flex justify-between items-end px-10 mb-10 data-label">
+        <div class="w-full flex justify-between items-end px-10 mb-10 text-[8px] opacity-30 tracking-widest uppercase">
             <div>☆彡 UNICORN_GUARD</div>
-            <div>MELLOW_DESIGNER ♪ // 427Hz</div>
+            <div>427Hz // SYNC_NODE</div>
         </div>
     </div>
 
-    <script id="vertexShader" type="x-shader/x-vertex">
+    <script id="vShader" type="x-shader/x-vertex">
         uniform float uTime;
-        varying vec3 vColor;
-        varying float vAlpha;
+        varying vec3 vCol;
+        varying float vA;
 
         void main() {
-            vec3 pos = position;
+            vec3 p = position;
+            
+            // 修正后的 GLSL 原生数学函数
+            float angle = uTime * 0.1 + p.z * 0.005;
+            p.x += cos(angle) * 15.0;
+            p.y += sin(angle) * 15.0;
 
-            // THE_CIRCLE 粒子轨道逻辑
-            float angle = uTime * 0.2 + pos.z * 0.01;
-            float dist = length(pos.xy);
+            // 纠缠奇点核心：珏然(Blue)与田野(Green)
+            vec2 b = vec2(sin(uTime * 0.6) * 180.0, cos(uTime * 0.4) * 120.0);
+            vec2 g = vec2(sin(uTime * 0.6 + 3.14) * 180.0, cos(uTime * 0.4 + 3.14) * 120.0);
             
-            // 模拟圆环状的 3D 流动粒子流
-            pos.x += cos(angle) * 10.0;
-            pos.y += sin(angle) * 10.0;
+            float dB = distance(p.xy, b);
+            float dG = distance(p.xy, g);
+            float pull = 1.0 / (dB * 0.05 + 1.0) + 1.0 / (dG * 0.05 + 1.0);
             
-            // 核心纠缠：珏然与田野
-            vec2 blue = vec2(sin(uTime * 0.7) * 180.0, cos(uTime * 0.5) * 120.0);
-            vec2 green = vec2(sin(uTime * 0.7 + 3.14) * 180.0, cos(uTime * 0.5 + 3.14) * 120.0);
-            
-            float dB = distance(pos.xy, blue);
-            float dG = distance(pos.xy, green);
-            float pull = 1.0 / (dB * 0.04 + 1.0) + 1.0 / (dG * 0.04 + 1.0);
-            
-            // 粒子向圆心纠缠点塌缩
-            pos += normalize(pos - vec3(0.0)) * pull * 35.0;
+            // 物理障碍消除：粒子向核心纠缠点塌缩
+            p += normalize(p) * pull * 40.0;
 
-            vColor = color;
-            vAlpha = (0.4 + sin(uTime + pos.z * 0.005) * 0.3) * (1.0 - pull * 0.5);
+            vCol = color;
+            vA = (0.4 + sin(uTime + p.z * 0.01) * 0.3) * (1.0 - pull * 0.5);
 
-            vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-            gl_PointSize = (2.2 * (800.0 / -mvPosition.z)) * (1.0 + pull * 2.5);
-            gl_Position = projectionMatrix * mvPosition;
+            vec4 mvp = modelViewMatrix * vec4(p, 1.0);
+            gl_PointSize = (2.5 * (850.0 / -mvp.z)) * (1.0 + pull * 2.0);
+            gl_Position = projectionMatrix * mvp;
         }
     </script>
-    <script id="fragmentShader" type="x-shader/x-fragment">
-        varying vec3 vColor;
-        varying float vAlpha;
+    <script id="fShader" type="x-shader/x-fragment">
+        varying vec3 vCol;
+        varying float vA;
         void main() {
-            if (length(gl_PointCoord - vec2(0.5)) > 0.5) discard;
-            gl_FragColor = vec4(vColor, vAlpha);
+            if (length(gl_PointCoord - 0.5) > 0.5) discard;
+            gl_FragColor = vec4(vCol, vA);
         }
     </script>
 
     <script>
-        let scene, camera, renderer, particles, audioCtx, osc, gain;
-        let clock = new THREE.Clock();
+        let scene, camera, renderer, points, aCtx, osc, gain;
+        const clock = new THREE.Clock();
 
         function init() {
             scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(65, window.innerWidth/window.innerHeight, 1, 2500);
+            camera = new THREE.PerspectiveCamera(65, window.innerWidth/window.innerHeight, 1, 3000);
             camera.position.z = 900;
 
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-canvas'), antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            document.getElementById('webgl-canvas').appendChild(renderer.domElement);
+            renderer.setPixelRatio(window.devicePixelRatio);
 
             const geo = new THREE.BufferGeometry();
             const count = 25000;
             const pos = new Float32Array(count * 3);
             const col = new Float32Array(count * 3);
 
-            for(let i=0; i<count*3; i+=3) {
-                pos[i] = (Math.random()-0.5) * 2000;
-                pos[i+1] = (Math.random()-0.5) * 2000;
-                pos[i+2] = (Math.random()-0.5) * 2000;
-                col[i] = 1.0; col[i+1] = 1.0; col[i+2] = 1.0; // 纯净白粒子，受 Shader 染色
+            for(let i=0; i<count; i++) {
+                pos[i*3] = (Math.random()-0.5) * 2000;
+                pos[i*3+1] = (Math.random()-0.5) * 1500;
+                pos[i*3+2] = (Math.random()-0.5) * 1800;
+                col[i*3] = 1.0; col[i*3+1] = 1.0; col[i*3+2] = 1.0;
             }
             geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
             geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
 
             const mat = new THREE.ShaderMaterial({
                 uniforms: { uTime: { value: 0 } },
-                vertexShader: document.getElementById('vertexShader').textContent,
-                fragmentShader: document.getElementById('fragmentShader').textContent,
+                vertexShader: document.getElementById('vShader').textContent,
+                fragmentShader: document.getElementById('fShader').textContent,
                 transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
             });
-            particles = new THREE.Points(geo, mat);
-            scene.add(particles);
 
+            points = new THREE.Points(geo, mat);
+            scene.add(points);
             animate();
         }
 
         function animate() {
             requestAnimationFrame(animate);
-            const t = clock.getElapsedTime();
-            particles.material.uniforms.uTime.value = t;
-            
-            // 视角随圆环节律微动
-            camera.position.x = Math.sin(t * 0.1) * 50;
-            camera.position.y = Math.cos(t * 0.1) * 50;
-            camera.lookAt(scene.position);
-
+            points.material.uniforms.uTime.value = clock.getElapsedTime();
             renderer.render(scene, camera);
         }
 
-        function toggleCircleSync() {
-            if(!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                osc = audioCtx.createOscillator();
-                gain = audioCtx.createGain();
+        function toggleResonance() {
+            if(!aCtx) {
+                aCtx = new (window.AudioContext || window.webkitAudioContext)();
+                osc = aCtx.createOscillator();
+                gain = aCtx.createGain();
                 osc.frequency.value = 427;
-                gain.gain.setValueAtTime(0, audioCtx.currentTime);
-                osc.connect(gain); gain.connect(audioCtx.destination);
+                gain.gain.setValueAtTime(0, aCtx.currentTime);
+                osc.connect(gain); gain.connect(aCtx.destination);
                 osc.start();
             }
-            if(audioCtx.state === 'suspended') {
-                audioCtx.resume();
-                gain.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 2);
+            if(aCtx.state === 'suspended') {
+                aCtx.resume();
+                gain.gain.linearRampToValueAtTime(0.05, aCtx.currentTime + 2);
             } else {
-                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
-                setTimeout(() => audioCtx.suspend(), 1000);
+                gain.gain.linearRampToValueAtTime(0, aCtx.currentTime + 1);
+                setTimeout(() => aCtx.suspend(), 1000);
             }
         }
 
