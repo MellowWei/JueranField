@@ -1,0 +1,39 @@
+/* Resonance.css */
+#convergence-ui {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.4) 100%);
+}
+
+.sovereign-mark {
+    position: absolute;
+    top: 5vh;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    letter-spacing: 1.2em;
+    color: rgba(255, 255, 255, 0.2);
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+/* 427Hz 同步触控区 */
+.sync-portal {
+    position: absolute;
+    bottom: 10vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent, #00ffaa, transparent);
+    pointer-events: auto;
+    cursor: pointer;
+    transition: 0.5s ease;
+}
+
+.sync-portal:hover {
+    height: 120px;
+    box-shadow: 0 0 20px #00ffaa;
+}
