@@ -6,22 +6,19 @@
     <title>☆ 彡 珏然 // 田野 ♪ ★ // THE_CIRCLE</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; cursor: crosshair; }
-        #canvas { position: fixed; inset: 0; z-index: 1; }
-        .ui { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 40px; text-align: center; }
-        .ui * { pointer-events: auto; }
-        .title { color: #fff; font-weight: 900; font-style: italic; font-size: 1.4rem; letter-spacing: 0.15em; text-shadow: 0 0 25px rgba(0,255,170,0.5); }
-        .footer { font-size: 8px; color: rgba(255,255,255,0.25); letter-spacing: 0.4em; text-transform: uppercase; }
+        body { margin: 0; background: #000; overflow: hidden; cursor: none; }
+        #canvas { position: fixed; inset: 0; }
+        .ui { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 40px; }
+        .title { color: #fff; font-family: sans-serif; font-weight: 900; font-style: italic; font-size: 1.5rem; letter-spacing: 0.2em; text-align: center; pointer-events: auto; }
+        #cursor { width: 10px; height: 10px; background: #00ffaa; border-radius: 50%; position: fixed; pointer-events: none; z-index: 999; box-shadow: 0 0 15px #00ffaa; }
     </style>
 </head>
-<body class="bg-black">
+<body>
+    <div id="cursor"></div>
     <canvas id="canvas"></canvas>
     <div class="ui">
-        <div>
-            <h1 class="title uppercase">☆ 彡 珏然 // 田野 ♪ ★</h1>
-            <p style="font-size: 7px; color: rgba(255,255,255,0.3); margin-top: 10px; letter-spacing: 1em;">INTERACTIVE_SPATIAL_NARRATIVE</p>
-        </div>
-        <div class="footer">Zero Barrier // 77347 // 427Hz Node</div>
+        <h1 class="title">☆ 彡 珏然 // 田野 ♪ ★</h1>
+        <div style="text-align: center; color: rgba(255,255,255,0.2); font-size: 8px; letter-spacing: 1em;">HOLD TO MORPH SPACE</div>
     </div>
 
     <script id="vShader" type="x-shader/x-vertex">
@@ -29,32 +26,41 @@
         uniform float uMorph;
         uniform vec3 uB;
         uniform vec3 uG;
-        uniform sampler2D uHome;
-        uniform sampler2D uSpace;
         varying vec3 vCol;
         varying float vA;
 
-        void main() {
-            vec3 p = position;
-            vec2 uv = vec2(p.x / 2000.0 + 0.5, p.y / 2000.0 + 0.5);
-            
-            // 叙事性采样：从家到宇宙的质感迁移
-            vec3 cH = texture2D(uHome, uv).rgb;
-            vec3 cS = texture2D(uSpace, uv).rgb;
-            
-            // 纠缠物理
-            float dB = distance(p, uB); float dG = distance(p, uG);
-            float pull = 1.0 / (dB * 0.04 + 1.0) + 1.0 / (dG * 0.04 + 1.0);
-            
-            // 流动而稳固的算法：当 uMorph 变化时，空间重构
-            p += normalize(uB - p) * pull * (40.0 + sin(uTime)*10.0);
-            p.z += sin(uTime * 0.5 + p.x * 0.02) * 15.0 * (1.0 - uMorph);
+        // 伪随机函数用于生成空间厚度
+        float hash(float n) { return fract(sin(n) * 43758.5453123); }
 
-            vCol = mix(cH, cS, uMorph) + (pull * vec3(0.0, 1.0, 0.7));
-            vA = (0.4 + sin(uTime + p.z * 0.01) * 0.25) * (1.1 - pull);
+        void main() {
+            // 初始形状：家的有序点阵 (稳固感)
+            vec3 pHome = position;
+            
+            // 目标形状：宇宙的螺旋坍缩 (空间感)
+            float angle = position.x * 0.002 + uTime * 0.2;
+            float dist = length(position.xy);
+            vec3 pSpace = vec3(
+                cos(angle) * dist,
+                sin(angle) * dist,
+                sin(dist * 0.01) * 300.0 // 增加 Z 轴深度
+            );
+
+            // 叙事性 Morphing
+            vec3 p = mix(pHome, pSpace, uMorph);
+
+            // 互动纠缠：珏然(Blue)与田野(Green)的引力
+            float dB = distance(p, uB);
+            float dG = distance(p, uG);
+            float pull = 1.0 / (dB * 0.05 + 1.0) + 1.0 / (dG * 0.05 + 1.0);
+            
+            p += normalize(uB - p) * pull * 60.0;
+            p.z += hash(position.x) * 100.0 * uMorph; // 升维时的粒子散逸
+
+            vCol = color + (pull * vec3(0.0, 1.0, 0.8));
+            vA = (0.5 + sin(uTime + p.z * 0.01) * 0.3) * (1.0 - pull * 0.5);
 
             vec4 mvp = modelViewMatrix * vec4(p, 1.0);
-            gl_PointSize = (2.5 * (900.0 / -mvp.z)) * (1.0 + pull * 2.5);
+            gl_PointSize = (2.8 * (1000.0 / -mvp.z)) * (1.0 + pull * 3.0);
             gl_Position = projectionMatrix * mvp;
         }
     </script>
@@ -74,33 +80,39 @@
 
         function init() {
             scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 3000);
-            camera.position.z = 950;
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 4000);
+            camera.position.z = 1100;
 
-            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas'), antialias: true, alpha: true });
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas'), antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
 
-            const loader = new THREE.TextureLoader();
-            // 文件名强制对齐
-            const tH = loader.load('./home1.jpg'); 
-            const tS = loader.load('./space.jpg');
-
+            // 1. 建立具有空间骨架的粒子系统 (60,000个点)
             const geo = new THREE.BufferGeometry();
-            const count = 45000; // 粒子加密，提升叙事精细度
+            const count = 60000;
             const pos = new Float32Array(count * 3);
+            const col = new Float32Array(count * 3);
+
             for(let i=0; i<count; i++) {
-                pos[i*3] = (Math.random()-0.5)*2200;
-                pos[i*3+1] = (Math.random()-0.5)*1600;
-                pos[i*3+2] = (Math.random()-0.5)*1200;
+                // 模拟“家”的几何骨架：窗框、地面、墙角
+                let x = (Math.random()-0.5) * 2000;
+                let y = (Math.random()-0.5) * 1500;
+                let z = (Math.random()-0.5) * 400;
+                
+                // 增加边缘稳固感：模拟照片里的结构线
+                if(Math.random() > 0.9) { x = Math.sign(x) * 800; } 
+
+                pos[i*3] = x; pos[i*3+1] = y; pos[i*3+2] = z;
+
+                // 初始颜色：暖色调 (对应 home1~4.jpg)
+                col[i*3] = 0.9; col[i*3+1] = 0.7; col[i*3+2] = 0.6;
             }
             geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
 
             const mat = new THREE.ShaderMaterial({
                 uniforms: {
                     uTime: { value: 0 }, uMorph: { value: 0 },
-                    uB: { value: new THREE.Vector3() }, uG: { value: new THREE.Vector3() },
-                    uHome: { value: tH }, uSpace: { value: tS }
+                    uB: { value: new THREE.Vector3() }, uG: { value: new THREE.Vector3() }
                 },
                 vertexShader: document.getElementById('vShader').textContent,
                 fragmentShader: document.getElementById('fShader').textContent,
@@ -108,15 +120,18 @@
             });
 
             points = new THREE.Points(geo, mat); scene.add(points);
-            blue = new THREE.Mesh(new THREE.SphereGeometry(6,32,32), new THREE.MeshBasicMaterial({color: 0x00aaff}));
-            green = new THREE.Mesh(new THREE.SphereGeometry(6,32,32), new THREE.MeshBasicMaterial({color: 0x00ffaa}));
+
+            // 核心实体
+            blue = new THREE.Mesh(new THREE.SphereGeometry(4), new THREE.MeshBasicMaterial({color: 0x00aaff}));
+            green = new THREE.Mesh(new THREE.SphereGeometry(4), new THREE.MeshBasicMaterial({color: 0x00ffaa}));
             scene.add(blue); scene.add(green);
 
             window.addEventListener('mousemove', (e) => {
                 mouse.x = (e.clientX - window.innerWidth/2);
                 mouse.y = -(e.clientY - window.innerHeight/2);
+                document.getElementById('cursor').style.left = e.clientX + 'px';
+                document.getElementById('cursor').style.top = e.clientY + 'px';
             });
-            // 互动性逻辑：点击进入太空舱/宇宙叙事，松开回归家园
             window.addEventListener('mousedown', () => mTarget = 1);
             window.addEventListener('mouseup', () => mTarget = 0);
 
@@ -126,25 +141,24 @@
         function animate() {
             requestAnimationFrame(animate);
             const t = clock.getElapsedTime();
-            curMorph += (mTarget - curMorph) * 0.03;
+            curMorph += (mTarget - curMorph) * 0.02;
             
             points.material.uniforms.uTime.value = t;
             points.material.uniforms.uMorph.value = curMorph;
 
-            const r = 240 + Math.sin(t*0.4)*60;
-            blue.position.set(Math.sin(t*0.8)*r + mouse.x/6, Math.cos(t*1.1)*r*0.5 + mouse.y/6, Math.sin(t*0.5)*200);
-            green.position.set(Math.sin(t*0.8+3.14)*r + mouse.x/6, Math.cos(t*1.1+3.14)*r*0.5 + mouse.y/6, Math.sin(t*0.5+3.14)*200);
+            const r = 280 + Math.sin(t*0.5)*50;
+            blue.position.set(Math.sin(t*0.8)*r + mouse.x/4, Math.cos(t*1.1)*r*0.4 + mouse.y/4, Math.sin(t*0.5)*100);
+            green.position.set(Math.sin(t*0.8+3.14)*r + mouse.x/4, Math.cos(t*1.1+3.14)*r*0.4 + mouse.y/4, Math.sin(t*0.5+3.14)*100);
 
             points.material.uniforms.uB.value.copy(blue.position);
             points.material.uniforms.uG.value.copy(green.position);
 
-            camera.position.x += (mouse.x/12 - camera.position.x) * 0.05;
-            camera.position.y += (mouse.y/12 - camera.position.y) * 0.05;
-            camera.lookAt(scene.position);
+            camera.position.x += (mouse.x/10 - camera.position.x) * 0.05;
+            camera.position.y += (mouse.y/10 - camera.position.y) * 0.05;
+            camera.lookAt(0,0,0);
 
             renderer.render(scene, camera);
         }
-
         init();
     </script>
 </body>
