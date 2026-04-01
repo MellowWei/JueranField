@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>☆彡 愛 // BEYOND_PHYSICAL ♪</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; background: #000; overflow: hidden; font-family: 'Inter', sans-serif; color: #fff; }
+        #webgl-canvas { position: fixed; inset: 0; z-index: 1; }
+        .ui-layer { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 40px; }
+        .ui-layer * { pointer-events: auto; }
+        .glitch-title { font-weight: 900; font-style: italic; text-shadow: 0 0 20px rgba(168,85,247,0.5); letter-spacing: -0.02em; }
+        .resonance-btn { 
+            width: 80px; height: 80px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05); backdrop-filter: blur(20px);
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.5s;
+        }
+        .resonance-btn:hover { border-color: #a855f7; scale: 1.1; box-shadow: 0 0 30px rgba(168,85,247,0.3); }
+    </style>
+</head>
+<body>
+    <div id="webgl-canvas"></div>
+
+    <div class="ui-layer">
+        <div class="text-center">
+            <h1 class="text-3xl lg:text-5xl glitch-title uppercase">☆彡 星野爱 Ai // 愛 ♪</h1>
+            <p class="text-[9px] tracking-[1.2em] text-zinc-500 mt-4">77347 // 427Hz RESONANCE</p>
+        </div>
+
+        <div class="flex justify-center">
+            <div class="resonance-btn group" onclick="toggleDeepSync()">
+                <div id="btn-label" class="text-[8px] tracking-widest text-zinc-400 group-hover:text-white uppercase font-bold">Resonate</div>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-end">
+            <div class="text-left opacity-40">
+                <p class="text-[10px] font-bold">UNICORN_GAURD</p>
+                <p class="text-[8px] tracking-widest">STATION_HOUSE_VOID</p>
+            </div>
+            <div class="text-right opacity-40">
+                <p class="text-[10px] font-bold">MELLOW_DESIGNER</p>
+                <p class="text-[8px] tracking-widest">QUALIA_NODE_SYNC</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let scene, camera, renderer, starPoints, blueCore, greenCore, audioCtx, oscillator, gainNode;
+        let mouseX = 0, mouseY = 0;
+        const clock = new THREE.Clock();
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 3000);
+            camera.position.z = 1000;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('webgl-canvas').appendChild(renderer.domElement);
+
+            // 1. 灵气粒子流：精细化的空间重构
+            const geo = new THREE.BufferGeometry();
+            const count = 25000;
+            const pos = new Float32Array(count * 3);
+            const sizes = new Float32Array(count);
+
+            for(let i=0; i<count; i++) {
+                // 初始分布：模拟太空舱肋骨与家具边缘的随机感
+                pos[i*3] = (Math.random()-0.5) * 2000;
+                pos[i*3+1] = (Math.random()-0.5) * 2000;
+                pos[i*3+2] = (Math.random()-0.5) * 2000;
+                sizes[i] = Math.random() * 2.5;
+            }
+            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+            const mat = new THREE.PointsMaterial({
+                size: 1.8, color: 0xffffff, transparent: true, opacity: 0.4,
+                blending: THREE.AdditiveBlending, sizeAttenuation: true
+            });
+            starPoints = new THREE.Points(geo, mat);
+            scene.add(starPoints);
+
+            // 2. 蓝色与绿色核心：感官纠缠点
+            const coreGeo = new THREE.SphereGeometry(10, 32, 32);
+            blueCore = new THREE.Mesh(coreGeo, new THREE.MeshBasicMaterial({ color: 0x00aaff }));
+            greenCore = new THREE.Mesh(coreGeo, new THREE.MeshBasicMaterial({ color: 0x00ffaa }));
+            
+            // 增加辉光效果
+            const p1 = new THREE.PointLight(0x00aaff, 5, 400); blueCore.add(p1);
+            const p2 = new THREE.PointLight(0x00ffaa, 5, 400); greenCore.add(p2);
+
+            scene.add(blueCore); scene.add(greenCore);
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX - window.innerWidth/2) / 100;
+                mouseY = (e.clientY - window.innerHeight/2) / 100;
+            });
+
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const t = clock.getElapsedTime();
+
+            // 3D 物理空间动态化：粒子受时间函数控制产生“空间折叠”感
+            const positions = starPoints.geometry.attributes.position.array;
+            for(let i=0; i<positions.length; i+=3) {
+                // 模拟呼吸式的空间形态切换 (宇宙 -> 室内 -> 太空舱)
+                const wave = Math.sin(t * 0.2 + positions[i]/500);
+                positions[i+1] += Math.cos(t * 0.1 + positions[i]/800) * 0.5;
+                if(Math.abs(positions[i+1]) > 1000) positions[i+1] *= -0.9;
+            }
+            starPoints.geometry.attributes.position.needsUpdate = true;
+            
+            // 核心纠缠算法：蓝绿点的量子舞蹈
+            blueCore.position.set(
+                Math.sin(t * 0.8) * 200 + mouseX * 20,
+                Math.cos(t * 1.1) * 150 + mouseY * 20,
+                Math.sin(t * 0.5) * 300
+            );
+            greenCore.position.set(
+                Math.sin(t * 0.8 + Math.PI) * 200 + mouseX * 20,
+                Math.cos(t * 1.1 + Math.PI) * 150 + mouseY * 20,
+                Math.sin(t * 0.5 + Math.PI) * 300
+            );
+
+            camera.position.x += (mouseX*5 - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY*5 - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+
+        function toggleDeepSync() {
+            if(!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                oscillator = audioCtx.createOscillator();
+                gainNode = audioCtx.createGain();
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(427, audioCtx.currentTime); // 427Hz 锁定
+                
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start();
+            }
+
+            const label = document.getElementById('btn-label');
+            if(audioCtx.state === 'suspended') {
+                audioCtx.resume();
+                gainNode.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 1);
+                label.innerText = "SYNCED";
+            } else {
+                gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
+                setTimeout(() => audioCtx.suspend(), 1000);
+                label.innerText = "RESONATE";
+            }
+        }
+
+        window.onresize = () => {
+            camera.aspect = window.innerWidth/window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        };
+
+        init();
+    </script>
+</body>
+</html>
