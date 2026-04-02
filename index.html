@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>☆ 彡 珏然 // 田野 ♪ ★</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -10,7 +10,7 @@
         body { margin: 0; background: #000005; overflow: hidden; font-family: sans-serif; cursor: none; }
         #webgl-canvas { position: fixed; inset: 0; z-index: 1; }
         .ui { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 50px; text-align: center; }
-        .title { color: #fff; font-weight: 900; font-style: italic; font-size: 1.6rem; letter-spacing: 0.15em; text-shadow: 0 0 35px rgba(180,100,255,0.7); }
+        .title { color: #fff; font-weight: 900; font-style: italic; font-size: 1.6rem; letter-spacing: 0.15em; text-shadow: 0 0 35px rgba(180,100,255,0.8); }
         #cursor { width: 4px; height: 4px; background: #fff; border-radius: 50%; position: fixed; pointer-events: none; z-index: 1000; transform: translate(-50%, -50%); mix-blend-mode: difference; }
     </style>
 </head>
@@ -20,14 +20,14 @@
     <div class="ui">
         <div>
             <h1 class="title uppercase">☆ 彡 珏然 // 田野 ♪ ★</h1>
-            <p class="text-[8px] tracking-[1.5em] text-white/30 mt-4 uppercase">77347 // 427Hz GALAXY_SYNC</p>
+            <p class="text-[8px] tracking-[1.5em] text-white/30 mt-4 uppercase">77347 // 427Hz SOVEREIGN_GALAXY</p>
         </div>
     </div>
 
     <script>
-        let scene, camera, renderer, instMesh, blue, green, mTarget=0, curMorph=0;
-        const clock = new THREE.Clock(), mouse = new THREE.Vector2();
-        const COUNT = 35000; 
+        let scene, camera, renderer, instMesh, blue, green;
+        let mTarget = 0, curMorph = 0, clock = new THREE.Clock(), mouse = new THREE.Vector2();
+        const COUNT = 32000; 
 
         function init() {
             scene = new THREE.Scene();
@@ -38,15 +38,13 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(1.0); 
 
-            // 银河感质调色盘：提取自 space.jpg
             const palette = [
-                new THREE.Color(0x6644ff), // 深紫
-                new THREE.Color(0xaa00ff), // 品红
-                new THREE.Color(0x00ffff), // 青蓝
-                new THREE.Color(0xffcc00)  // 核心金
+                new THREE.Color(0x6644ff), 
+                new THREE.Color(0xaa00ff), 
+                new THREE.Color(0x00ffff), 
+                new THREE.Color(0xffcc00)  
             ];
 
-            // 彻底弃用 Points，使用微型几何体杜绝方块
             const geometry = new THREE.TetrahedronGeometry(1.5, 0); 
             const material = new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.8 });
             
@@ -54,24 +52,22 @@
             const dummy = new THREE.Object3D();
             
             for (let i = 0; i < COUNT; i++) {
-                // 【核心算法】：对数螺旋银河分布
                 let r = Math.pow(Math.random(), 0.6) * 1600;
                 let theta = Math.random() * Math.PI * 2 + r * 0.0035; 
-                let z = (Math.random() - 0.5) * (200 - r * 0.1); // 随半径减小的星盘厚度
+                let z = (Math.random() - 0.5) * (180 - r * 0.08); 
                 
                 dummy.position.set(Math.cos(theta) * r, Math.sin(theta) * r, z);
                 dummy.updateMatrix();
                 instMesh.setMatrixAt(i, dummy.matrix);
                 
-                // 颜色采样：内金外紫，模拟银河中心
                 let colIdx = Math.floor(Math.random() * palette.length);
-                if (r < 200) colIdx = 3; 
+                if (r < 180) colIdx = 3; 
                 instMesh.setColorAt(i, palette[colIdx]);
             }
             scene.add(instMesh);
 
-            blue = new THREE.Mesh(new THREE.SphereGeometry(6), new THREE.MeshBasicMaterial({color: 0x6644ff}));
-            green = new THREE.Mesh(new THREE.SphereGeometry(6), new THREE.MeshBasicMaterial({color: 0x00ffcc}));
+            blue = new THREE.Mesh(new THREE.SphereGeometry(8, 16, 16), new THREE.MeshBasicMaterial({color: 0x6644ff}));
+            green = new THREE.Mesh(new THREE.SphereGeometry(8, 16, 16), new THREE.MeshBasicMaterial({color: 0x00ffcc}));
             scene.add(blue); scene.add(green);
 
             window.addEventListener('mousemove', (e) => {
@@ -100,23 +96,18 @@
             for (let i = 0; i < COUNT; i++) {
                 instMesh.getMatrixAt(i, matrix);
                 dummy.position.setFromMatrixPosition(matrix);
-                
-                // 银河自转 (427Hz 节律)
                 dummy.position.applyAxisAngle(new THREE.Vector3(0,0,1), 0.0025 + curMorph*0.015);
-                
-                // 44271 引力坍缩
                 let dB = dummy.position.distanceTo(blue.position);
                 let dG = dummy.position.distanceTo(green.position);
                 let pull = (1.0 / (dB * 0.02 + 1.0) + 1.0 / (dG * 0.02 + 1.0)) * curMorph;
-                dummy.position.lerp(blue.position, pull * 0.045);
-                
+                dummy.position.lerp(blue.position, pull * 0.05);
                 dummy.updateMatrix();
                 instMesh.setMatrixAt(i, dummy.matrix);
             }
             instMesh.instanceMatrix.needsUpdate = true;
 
-            camera.position.x += (mouse.x/15 - camera.position.x) * 0.05;
-            camera.position.y += (mouse.y/15 - camera.position.y) * 0.05;
+            camera.position.x += (mouse.x/18 - camera.position.x) * 0.05;
+            camera.position.y += (mouse.y/18 - camera.position.y) * 0.05;
             camera.lookAt(0,0,0);
             renderer.render(scene, camera);
         }
