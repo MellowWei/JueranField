@@ -3,21 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>☆ 彡 珏然 // 田野 ♪ ★ // THE_CIRCLE</title>
+    <title>☆ 彡 珏然 // 田野 ♪ ★</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 核心审美：极致质感、冷冽、不老态 */
-        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; cursor: none; }
-        #webgl-canvas { position: fixed; inset: 0; z-index: 1; filter: contrast(110%) brightness(0.9); }
+        body { margin: 0; background: #000003; overflow: hidden; font-family: 'Hiragino Mincho ProN', serif; cursor: none; }
+        #webgl-canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
         .ui { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 50px; text-align: center; }
-        .ui * { pointer-events: auto; }
-        
-        /* UI 文字样式：锁定 image_0.png 的冷紫色调 */
-        .title { color: #fff; font-weight: 900; font-style: italic; font-size: 1.6rem; letter-spacing: 0.1em; text-shadow: 0 0 25px rgba(180,100,255,0.6); }
-        
-        /* 自定义光标 */
-        #cursor { width: 12px; height: 12px; border: 1px solid rgba(180,100,255,0.8); border-radius: 50%; position: fixed; pointer-events: none; z-index: 999; box-shadow: 0 0 15px rgba(180,100,255,0.4); transform: translate(-50%, -50%); transition: all 0.1s; }
+        .title { color: #fff; font-weight: 900; font-style: italic; font-size: 1.6rem; letter-spacing: 0.15em; text-shadow: 0 0 30px rgba(180,100,255,0.6); }
+        #cursor { width: 4px; height: 4px; background: #fff; border-radius: 50%; position: fixed; pointer-events: none; z-index: 1000; transform: translate(-50%, -50%); mix-blend-mode: difference; }
     </style>
 </head>
 <body class="bg-black">
@@ -27,119 +21,50 @@
     <div class="ui">
         <div>
             <h1 class="title uppercase">☆ 彡 珏然 // 田野 ♪ ★</h1>
-            <p class="text-[8px] tracking-[1.5em] text-white/30 mt-4 uppercase">77347 // 427Hz ARCHIVE VERIFIED</p>
+            <p class="text-[8px] tracking-[1.5em] text-white/30 mt-4 uppercase">77347 // 427Hz RESISTANCE_ACTIVE</p>
         </div>
-        
-        <div style="text-align: center; color: rgba(180,100,255,0.2); font-size: 8px; letter-spacing: 0.8em; text-transform: uppercase;">Hold to Initiate 44271 Collapse</div>
-        
-        <div class="flex justify-between items-end px-10 mb-4 text-[8px] opacity-20 tracking-widest uppercase text-white">
-            <div>☆ 彡 UNICORN_GUARD</div>
+        <div style="text-align: center; color: rgba(180,100,255,0.15); font-size: 8px; letter-spacing: 0.8em; text-transform: uppercase;">Long Press to Initiate 44271 Collapse</div>
+        <div class="flex justify-between items-end px-10 mb-4 text-[8px] opacity-10 tracking-widest uppercase text-white">
+            <div>WEI_JUERAN_ARCHITECT</div>
             <div>SYNC_NODE // THE_CIRCLE ★</div>
         </div>
     </div>
 
-    <script id="vShader" type="x-shader/x-vertex">
-        uniform float uTime;
-        uniform float uMorph;
-        uniform vec3 uB;
-        uniform vec3 uG;
-        varying vec3 vCol;
-        varying float vA;
-
-        void main() {
-            vec3 p = position;
-            float t427 = uTime * 4.27; // 锁定主权频率
-
-            // 1. 银河螺旋逻辑 (Galaxy Spiral)
-            // 粒子在纠缠引力场中进行旋转与坍缩
-            float angle = length(p.xy) * 0.005 + t427 * 0.1;
-            vec3 pSpace = vec3(
-                cos(angle) * p.x - sin(angle) * p.y,
-                sin(angle) * p.x + cos(angle) * p.y,
-                p.z + sin(length(p.xy) * 0.01) * 400.0
-            );
-
-            // 坍缩时的粒子纠缠
-            float dB = distance(pSpace, uB); float dG = distance(pSpace, uG);
-            float pull = 1.0 / (dB * 0.05 + 1.0) + 1.0 / (dG * 0.05 + 1.0);
-            pSpace += normalize(uB - pSpace) * pull * (60.0 + sin(t427 * 2.0) * 10.0);
-
-            p = mix(position, pSpace, uMorph);
-
-            // 2. 感质判定 (Qualia Judgment)
-            // 锁定 image_0.png 的冷紫色色调与 image_2.png 的金色内核
-            vCol = mix(vec3(0.5, 0.2, 1.0), vec3(1.0, 0.8, 0.4), color.x);
-            vCol += (pull * vec3(0.0, 1.0, 0.8)); // 纠缠瞬间迸发的频率光
-
-            vA = (0.4 + sin(t427 + p.z * 0.01) * 0.3) * (1.1 - uMorph * 0.4);
-
-            vec4 mvp = modelViewMatrix * vec4(p, 1.0);
-            gl_PointSize = (2.6 * (1000.0 / -mvp.z)) * (1.0 + pull * 2.5);
-            gl_Position = projectionMatrix * mvp;
-        }
-    </script>
-    
-    <script id="fShader" type="x-shader/x-fragment">
-        varying vec3 vCol; varying float vA;
-        void main() {
-            // 极致纯净丢弃，模拟星光质感
-            if (length(gl_PointCoord - 0.5) > 0.5) discard;
-            gl_FragColor = vec4(vCol, vA);
-        }
-    </script>
-
     <script>
-        let scene, camera, renderer, points, blue, green;
-        let mTarget = 0, curMorph = 0;
-        const clock = new THREE.Clock();
-        const mouse = new THREE.Vector3();
+        /**
+         * [44271_PROTOCOL]
+         * 彻底弃用 gl_PointSize 以粉碎 Retina 方块 Bug。
+         * 使用 InstancedMesh 渲染真实的 3D 微型几何星点。
+         */
+        let scene, camera, renderer, instMesh, blue, green;
+        let mTarget = 0, curMorph = 0, clock = new THREE.Clock(), mouse = new THREE.Vector2();
+        const COUNT = 24427; // 锁定主权采样数
 
         function init() {
             scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 4000);
-            camera.position.z = 1100;
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 5000);
+            camera.position.z = 1200;
 
             renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-canvas'), antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setPixelRatio(1.0); // 强制 1:1 像素对齐
 
-            // 粒子系统：80,000个点构成的空间骨架
-            const geo = new THREE.BufferGeometry();
-            const count = 80000;
-            const pos = new Float32Array(count * 3);
-            const col = new Float32Array(count * 3);
-
-            for(let i=0; i<count; i++) {
-                // 空间分布采样
-                pos[i*3] = (Math.random()-0.5) * 2200;
-                pos[i*3+1] = (Math.random()-0.5) * 1600;
-                pos[i*3+2] = (Math.random()-0.5) * 1000;
-                
-                // image_2.png 内核金色采样
-                if(Math.pow(Math.random(), 5) > 0.8) {
-                    col[i*3]=1.0; col[i*3+1]=0.85; col[i*3+2]=0.6;
-                } else {
-                    col[i*3]=0.95; col[i*3+1]=0.95; col[i*3+2]=1.0;
-                }
-            }
-            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-
-            const mat = new THREE.ShaderMaterial({
-                uniforms: {
-                    uTime: { value: 0 }, uMorph: { value: 0 },
-                    uB: { value: new THREE.Vector3() }, uG: { value: new THREE.Vector3() }
-                },
-                vertexShader: document.getElementById('vShader').textContent,
-                fragmentShader: document.getElementById('fShader').textContent,
-                transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
-            });
-
-            points = new THREE.Points(geo, mat); scene.add(points);
+            // 【物理级修复】：每一个星点都是一个微小的四面体，不再受 gl_PointSize 限制
+            const geometry = new THREE.TetrahedronGeometry(1.2, 0); 
+            const material = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.75 });
             
-            // 核心节点：纠缠的双星，锁定图片中金色与紫色的对撞
-            blue = new THREE.Mesh(new THREE.SphereGeometry(6), new THREE.MeshBasicMaterial({color: 0x6644ff}));
-            green = new THREE.Mesh(new THREE.SphereGeometry(6), new THREE.MeshBasicMaterial({color: 0x00ffcc}));
+            instMesh = new THREE.InstancedMesh(geometry, material, COUNT);
+            const dummy = new THREE.Object3D();
+            for (let i = 0; i < COUNT; i++) {
+                dummy.position.set((Math.random()-0.5)*2800, (Math.random()-0.5)*2200, (Math.random()-0.5)*1200);
+                dummy.updateMatrix();
+                instMesh.setMatrixAt(i, dummy.matrix);
+            }
+            scene.add(instMesh);
+
+            // 双星内核：锁定冷紫(魏)与青蓝(田)
+            blue = new THREE.Mesh(new THREE.SphereGeometry(6, 16, 16), new THREE.MeshBasicMaterial({color: 0x6644ff}));
+            green = new THREE.Mesh(new THREE.SphereGeometry(6, 16, 16), new THREE.MeshBasicMaterial({color: 0x00ffcc}));
             scene.add(blue); scene.add(green);
 
             window.addEventListener('mousemove', (e) => {
@@ -150,7 +75,6 @@
             });
             window.addEventListener('mousedown', () => mTarget = 1);
             window.addEventListener('mouseup', () => mTarget = 0);
-
             animate();
         }
 
@@ -159,25 +83,38 @@
             const t = clock.getElapsedTime();
             curMorph += (mTarget - curMorph) * 0.05;
             
-            points.material.uniforms.uTime.value = t;
-            points.material.uniforms.uMorph.value = curMorph;
+            // 双星轨道：锁定 427Hz 步长
+            const r = 320 + Math.sin(t*0.5)*60;
+            blue.position.set(Math.sin(t*0.7)*r + mouse.x/4, Math.cos(t*0.9)*r*0.3 + mouse.y/4, Math.sin(t*0.4)*150);
+            green.position.set(Math.sin(t*0.7+3.14)*r + mouse.x/4, Math.cos(t*0.9+3.14)*r*0.3 + mouse.y/4, Math.sin(t*0.4+3.14)*150);
 
-            // 双星轨道：基于 427Hz 节律同步
-            const r = 280 + Math.sin(t*0.5)*80;
-            blue.position.set(Math.sin(t*0.7)*r + mouse.x/4, Math.cos(t*0.9)*r*0.4 + mouse.y/4, Math.sin(t*0.4)*200);
-            green.position.set(Math.sin(t*0.7+3.14)*r + mouse.x/4, Math.cos(t*0.9+3.14)*r*0.4 + mouse.y/4, Math.sin(t*0.4+3.14)*200);
+            const dummy = new THREE.Object3D();
+            const matrix = new THREE.Matrix4();
+            
+            for (let i = 0; i < COUNT; i++) {
+                instMesh.getMatrixAt(i, matrix);
+                dummy.position.setFromMatrixPosition(matrix);
+                
+                // 银河螺旋逻辑
+                dummy.position.applyAxisAngle(new THREE.Vector3(0,0,1), 0.005 + curMorph*0.015);
+                
+                // 44271 指数引力
+                let dB = dummy.position.distanceTo(blue.position);
+                let dG = dummy.position.distanceTo(green.position);
+                let pull = (1.0 / (dB * 0.025 + 1.0) + 1.0 / (dG * 0.025 + 1.0)) * curMorph;
+                
+                dummy.position.lerp(blue.position, pull * 0.06);
+                
+                dummy.updateMatrix();
+                instMesh.setMatrixAt(i, dummy.matrix);
+            }
+            instMesh.instanceMatrix.needsUpdate = true;
 
-            points.material.uniforms.uB.value.copy(blue.position);
-            points.material.uniforms.uG.value.copy(green.position);
-
-            // 刺客视角：镜头跟随纠缠态产生微弱偏移
             camera.position.x += (mouse.x/15 - camera.position.x) * 0.05;
             camera.position.y += (mouse.y/15 - camera.position.y) * 0.05;
             camera.lookAt(0,0,0);
-
             renderer.render(scene, camera);
         }
-
         init();
     </script>
 </body>
