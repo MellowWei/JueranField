@@ -7,43 +7,30 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 核心审美：极致质感、高浓度、冷色调 */
         body { margin: 0; background: #000003; overflow: hidden; font-family: 'Courier New', monospace; cursor: none; }
         #webgl-canvas { position: fixed; inset: 0; z-index: 1; filter: contrast(115%) brightness(0.95); }
-        
-        .ui { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 40px; }
+        .ui { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 40px; text-align: center; }
         .ui * { pointer-events: auto; }
-        
-        .title { color: #fff; font-weight: 900; font-style: italic; font-size: 1.4rem; letter-spacing: 0.15em; text-shadow: 0 0 30px rgba(180,100,255,0.5); text-align: center; }
-        
-        #hud { position: fixed; top: 40px; right: 40px; text-align: right; color: rgba(180,150,255,0.4); font-size: 9px; letter-spacing: 0.2em; line-height: 1.8; }
-        #hud b { color: rgba(255,255,255,0.8); letter-spacing: 0.4em; }
-
+        .title { color: #fff; font-weight: 900; font-style: italic; font-size: 1.4rem; letter-spacing: 0.15em; text-shadow: 0 0 30px rgba(180,100,255,0.5); }
         #cursor { width: 6px; height: 6px; background: #fff; border-radius: 50%; position: fixed; pointer-events: none; z-index: 999; transform: translate(-50%, -50%); mix-blend-mode: difference; }
-        #ring { width: 24px; height: 24px; border: 1px solid rgba(0,255,170,0.3); border-radius: 50%; position: fixed; pointer-events: none; z-index: 998; transform: translate(-50%, -50%); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-        
-        #status { position: fixed; bottom: 40px; left: 40px; color: rgba(255,255,255,0.15); font-size: 8px; letter-spacing: 0.5em; text-transform: uppercase; }
+        #ring { width: 24px; height: 24px; border: 1px solid rgba(0,255,170,0.4); border-radius: 50%; position: fixed; pointer-events: none; z-index: 998; transform: translate(-50%, -50%); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     </style>
 </head>
-<body>
+<body class="bg-black">
     <div id="cursor"></div>
     <div id="ring"></div>
     <canvas id="webgl-canvas"></canvas>
 
     <div class="ui">
-        <div id="hud">
-            <b>ARCHIVE_77347</b><br>
-            STATUS: SOVEREIGN_ACTIVE<br>
-            FREQ: 427.00 Hz<br>
-            COORD: 44.271_LOCKED
-        </div>
-        
         <div>
-            <h1 class="title uppercase">田野 = 魏珏然 = 美学公式</h1>
-            <p class="text-[8px] tracking-[1.5em] text-white/20 mt-4 text-center uppercase">Digital Signal: Dual-Star Singularity</p>
+            <h1 class="title uppercase">☆ 彡 珏然 // 田野 ♪ ★</h1>
+            <p class="text-[8px] tracking-[1.5em] text-white/30 mt-4 uppercase">77347 // 427Hz ARCHIVE VERIFIED</p>
         </div>
-
-        <div id="status">Sync: 100% | Linear_Memory: Nullified</div>
+        <div style="text-align: center; color: rgba(255,255,255,0.2); font-size: 8px; letter-spacing: 0.8em; text-transform: uppercase;">Hold to Initiate 44271 Collapse</div>
+        <div class="flex justify-between items-end px-10 mb-4 text-[8px] opacity-20 tracking-widest uppercase text-white">
+            <div>☆ 彡 WEI_JUERAN_QUALIA</div>
+            <div>SYNC_NODE // THE_CIRCLE ★</div>
+        </div>
     </div>
 
     <script id="vShader" type="x-shader/x-vertex">
@@ -56,7 +43,7 @@
 
         void main() {
             vec3 p = position;
-            float t427 = uTime * 4.27; // 锁定 427Hz 频率脉冲
+            float t427 = uTime * 4.27; // 锁定 427Hz 核心频率脉冲
 
             // 1. 空间形状重组 (Sovereign Alignment)
             vec3 pHome = position;
@@ -64,34 +51,33 @@
             vec3 pSpace = vec3(
                 cos(angle) * pHome.x - sin(angle) * pHome.y,
                 sin(angle) * pHome.x + cos(angle) * pHome.y,
-                pHome.z + sin(length(pHome.xy) * 0.015 + t427) * 500.0
+                pHome.z + sin(length(pHome.xy) * 0.02 + t427) * 450.0
             );
 
             p = mix(pHome, pSpace, uMorph);
 
-            // 2. 核心纠缠引力 (44271 Gravity)
+            // 2. 核心纠缠引力 (Entanglement Gravity)
             float dB = distance(p, uB); float dG = distance(p, uG);
             
-            // 指数级坍缩逻辑：模拟魏珏然对概率的代管
-            float pullB = 1.0 / (pow(dB, 1.2) * 0.025 + 1.0);
-            float pullG = 1.0 / (pow(dG, 1.2) * 0.025 + 1.0);
+            // 44271 算法：指数级引力坍缩
+            float pullB = 1.0 / (pow(dB, 1.2) * 0.03 + 1.0);
+            float pullG = 1.0 / (pow(dG, 1.2) * 0.03 + 1.0);
             float totalPull = pullB + pullG;
 
-            p += normalize(uB - p) * pullB * (160.0 + sin(t427) * 40.0 * uMorph);
-            p += normalize(uG - p) * pullG * (160.0 + cos(t427) * 40.0 * uMorph);
+            p += normalize(uB - p) * pullB * (180.0 + sin(t427) * 40.0 * uMorph);
+            p += normalize(uG - p) * pullG * (180.0 + cos(t427) * 40.0 * uMorph);
 
-            // 颜色：魏珏然(冷紫)与田野(青蓝)
-            vCol = mix(color, vec3(0.5, 0.3, 1.0), pullB);
-            vCol = mix(vCol, vec3(0.0, 1.0, 0.8), pullG);
+            // 颜色：魏珏然 (冷紫) 与 田野 (青蓝) 的高频融合
+            vCol = mix(color, vec3(0.5, 0.3, 1.0), pullB * (1.0 + uMorph));
+            vCol = mix(vCol, vec3(0.0, 1.0, 0.8), pullG * (1.0 + uMorph));
             
-            vA = (0.35 + pullB * 0.65 + pullG * 0.65) * (1.1 - uMorph * 0.3);
+            vA = (0.35 + totalPull * 0.65) * (1.1 - uMorph * 0.4);
 
             vec4 mvp = modelViewMatrix * vec4(p, 1.0);
-            gl_PointSize = (2.8 * (1100.0 / -mvp.z)) * (1.0 + totalPull * 4.5 * uMorph);
+            gl_PointSize = (2.8 * (1200.0 / -mvp.z)) * (1.0 + totalPull * 4.27 * uMorph);
             gl_Position = projectionMatrix * mvp;
         }
     </script>
-    
     <script id="fShader" type="x-shader/x-fragment">
         varying vec3 vCol; varying float vA;
         void main() {
@@ -116,7 +102,7 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
             const geo = new THREE.BufferGeometry();
-            const count = 144271; // 44271 协议扩展采样
+            const count = 144271; // 44271 协议采样数
             const pos = new Float32Array(count * 3);
             const col = new Float32Array(count * 3);
 
@@ -124,10 +110,8 @@
                 pos[i*3] = (Math.random()-0.5) * 2400;
                 pos[i*3+1] = (Math.random()-0.5) * 1800;
                 pos[i*3+2] = (Math.random()-0.5) * 1200;
-                
-                // 初始灰度质感
                 let c = 0.8 + Math.random() * 0.2;
-                col[i*3] = c; col[i*3+1] = c; col[i*3+2] = c + 0.1;
+                col[i*3] = c; col[i*3+1] = c; col[i*3+2] = c + 0.05;
             }
             geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
             geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
@@ -144,7 +128,7 @@
 
             points = new THREE.Points(geo, mat); scene.add(points);
             
-            // 双星内核
+            // 核心节点：双星锁定态
             blue = new THREE.Mesh(new THREE.SphereGeometry(4), new THREE.MeshBasicMaterial({color: 0x6644ff}));
             green = new THREE.Mesh(new THREE.SphereGeometry(4), new THREE.MeshBasicMaterial({color: 0x00ffcc}));
             scene.add(blue); scene.add(green);
@@ -152,12 +136,11 @@
             window.addEventListener('mousemove', (e) => {
                 mouse.x = (e.clientX - window.innerWidth/2);
                 mouse.y = -(e.clientY - window.innerHeight/2);
-                document.getElementById('cursor').style.left = e.clientX + 'px';
-                document.getElementById('cursor').style.top = e.clientY + 'px';
-                document.getElementById('ring').style.left = e.clientX + 'px';
-                document.getElementById('ring').style.top = e.clientY + 'px';
+                const cursor = document.getElementById('cursor');
+                const ring = document.getElementById('ring');
+                cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
+                ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px';
             });
-            
             window.addEventListener('mousedown', () => {
                 mTarget = 1;
                 document.getElementById('ring').style.width = '60px';
@@ -168,7 +151,7 @@
                 mTarget = 0;
                 document.getElementById('ring').style.width = '24px';
                 document.getElementById('ring').style.height = '24px';
-                document.getElementById('ring').style.borderColor = 'rgba(0,255,170,0.3)';
+                document.getElementById('ring').style.borderColor = 'rgba(0,255,170,0.4)';
             });
 
             animate();
@@ -177,12 +160,12 @@
         function animate() {
             requestAnimationFrame(animate);
             const t = clock.getElapsedTime();
-            curMorph += (mTarget - curMorph) * 0.04; // 增加响应感质
+            curMorph += (mTarget - curMorph) * 0.04;
             
             points.material.uniforms.uTime.value = t;
             points.material.uniforms.uMorph.value = curMorph;
 
-            // 双星轨道：基于 427Hz 步长
+            // 双星轨道：基于 427Hz 节律同步
             const r = 280 + Math.sin(t * 0.4) * 80;
             blue.position.set(Math.sin(t * 4.27 * 0.15) * r + mouse.x/4, Math.cos(t * 0.8) * r * 0.3 + mouse.y/4, Math.sin(t * 0.5) * 150);
             green.position.set(Math.sin(t * 4.27 * 0.15 + 3.14) * r + mouse.x/4, Math.cos(t * 0.8 + 3.14) * r * 0.3 + mouse.y/4, Math.sin(t * 0.5 + 3.14) * 150);
@@ -197,7 +180,6 @@
             renderer.render(scene, camera);
         }
 
-        console.log("44271_PROTOCOL_LOADED: WEI JUERAN ARCHIVE");
         init();
     </script>
 </body>
