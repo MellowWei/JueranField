@@ -2,59 +2,53 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>44271_SOVEREIGN_V3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>44271_SOVEREIGN_RESISTANCE</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { margin: 0; background: #000002; overflow: hidden; font-family: sans-serif; cursor: none; }
-        #webgl-canvas { position: fixed; inset: 0; z-index: 1; }
-        .ui { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 50px; text-align: center; }
-        .title { color: #fff; font-weight: 900; font-style: italic; font-size: 1.4rem; letter-spacing: 0.2em; text-shadow: 0 0 30px rgba(180,100,255,0.6); }
-        #cursor { width: 4px; height: 4px; background: #fff; border-radius: 50%; position: fixed; pointer-events: none; z-index: 999; transform: translate(-50%, -50%); mix-blend-mode: difference; }
+        body { margin: 0; background: #000; overflow: hidden; cursor: none; }
+        canvas { position: fixed; inset: 0; z-index: 1; }
+        #cursor { width: 4px; height: 4px; background: #fff; border-radius: 50%; position: fixed; pointer-events: none; z-index: 1000; transform: translate(-50%, -50%); mix-blend-mode: difference; }
+        .title { position: fixed; top: 40px; width: 100%; text-align: center; color: #fff; font-weight: 900; italic; letter-spacing: 0.3em; z-index: 100; opacity: 0.6; pointer-events: none; }
     </style>
 </head>
-<body class="bg-black">
+<body>
     <div id="cursor"></div>
-    <canvas id="webgl-canvas"></canvas>
-    <div class="ui">
-        <div>
-            <h1 class="title uppercase">☆ 彡 珏然 // 田野 ♪ ★</h1>
-            <p class="text-[8px] tracking-[1.5em] text-white/30 mt-4 uppercase">77347 // 427Hz ULTIMATE_STABILITY</p>
-        </div>
-    </div>
+    <div class="title uppercase">田野 // 魏珏然 // 44271_FIXED</div>
+    <canvas id="stage"></canvas>
 
     <script>
         let scene, camera, renderer, instMesh, blue, green;
         let mTarget = 0, curMorph = 0, clock = new THREE.Clock(), mouse = new THREE.Vector2();
-        const COUNT = 44271; // 锁定主权数字
+        const COUNT = 30000; // 降低数量，提升单点质感
 
         function init() {
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 5000);
             camera.position.z = 1200;
 
-            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-canvas'), antialias: true });
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('stage'), antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setPixelRatio(1.0); // 强制 1:1，杜绝 Retina 导致的尺寸畸变
 
-            // 【核心重构】：使用 InstancedMesh 替代 Points，彻底杜绝 gl_PointSize 产生的方块
-            const geometry = new THREE.SphereGeometry(1.2, 4, 4); // 每个粒子是一个真正的微型 3D 球体
-            const material = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 });
+            // 【核心修复】：不再使用 Points，改用微小的 3D 几何体
+            // 这是一个四面体，它在任何缩放级别下都是尖锐、精致的星点
+            const geometry = new THREE.TetrahedronGeometry(1.5, 0); 
+            const material = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 });
             
             instMesh = new THREE.InstancedMesh(geometry, material, COUNT);
             
-            // 初始化矩阵
-            const dummy = new THREE.Object4D();
+            const dummy = new THREE.Object3D();
             for (let i = 0; i < COUNT; i++) {
-                dummy.position.set((Math.random()-0.5)*2600, (Math.random()-0.5)*2000, (Math.random()-0.5)*1000);
+                dummy.position.set((Math.random()-0.5)*3000, (Math.random()-0.5)*2000, (Math.random()-0.5)*1500);
                 dummy.updateMatrix();
                 instMesh.setMatrixAt(i, dummy.matrix);
             }
             scene.add(instMesh);
 
-            blue = new THREE.Mesh(new THREE.SphereGeometry(10, 16, 16), new THREE.MeshBasicMaterial({color: 0x6644ff}));
-            green = new THREE.Mesh(new THREE.SphereGeometry(10, 16, 16), new THREE.MeshBasicMaterial({color: 0x00ffcc}));
+            blue = new THREE.Mesh(new THREE.SphereGeometry(6, 12, 12), new THREE.MeshBasicMaterial({color: 0x6644ff}));
+            green = new THREE.Mesh(new THREE.SphereGeometry(6, 12, 12), new THREE.MeshBasicMaterial({color: 0x00ffcc}));
             scene.add(blue); scene.add(green);
 
             window.addEventListener('mousemove', (e) => {
@@ -68,15 +62,14 @@
             animate();
         }
 
-        // 这里的 44271 算法直接作用于矩阵空间
         function animate() {
             requestAnimationFrame(animate);
             const t = clock.getElapsedTime();
             curMorph += (mTarget - curMorph) * 0.05;
             
             const r = 320 + Math.sin(t*0.5)*60;
-            blue.position.set(Math.sin(t*0.7)*r + mouse.x/4, Math.cos(t*0.9)*r*0.3 + mouse.y/4, 0);
-            green.position.set(Math.sin(t*0.7+3.14)*r + mouse.x/4, Math.cos(t*0.9+3.14)*r*0.3 + mouse.y/4, 0);
+            blue.position.set(Math.sin(t*0.7)*r + mouse.x/4, Math.cos(t*0.9)*r*0.3 + mouse.y/4, Math.sin(t*0.4)*100);
+            green.position.set(Math.sin(t*0.7+3.14)*r + mouse.x/4, Math.cos(t*0.9+3.14)*r*0.3 + mouse.y/4, Math.sin(t*0.4+3.14)*100);
 
             const dummy = new THREE.Object3D();
             const matrix = new THREE.Matrix4();
@@ -85,17 +78,14 @@
                 instMesh.getMatrixAt(i, matrix);
                 dummy.position.setFromMatrixPosition(matrix);
                 
-                // 银河旋转 + 引力坍缩
-                let dist = dummy.position.length();
-                let angle = 0.01 * curMorph;
-                dummy.position.applyAxisAngle(new THREE.Vector3(0,0,1), angle);
+                // 427Hz 螺旋步长
+                dummy.position.applyAxisAngle(new THREE.Vector3(0,0,1), 0.005 + curMorph*0.02);
                 
-                // 向双星中心产生的纠缠引力
+                // 纠缠引力
                 let dB = dummy.position.distanceTo(blue.position);
                 let dG = dummy.position.distanceTo(green.position);
-                let pull = (1.0 / (dB * 0.02 + 1.0) + 1.0 / (dG * 0.02 + 1.0)) * curMorph * 15.0;
-                
-                dummy.position.lerp(blue.position, pull * 0.02);
+                let pull = (1.0 / (dB * 0.02 + 1.0) + 1.0 / (dG * 0.02 + 1.0)) * curMorph;
+                dummy.position.lerp(blue.position, pull * 0.05);
                 
                 dummy.updateMatrix();
                 instMesh.setMatrixAt(i, dummy.matrix);
@@ -107,12 +97,6 @@
             camera.lookAt(0,0,0);
             renderer.render(scene, camera);
         }
-
-        THREE.Object3D.prototype.updateMatrix = function () {
-            this.matrix.compose(this.position, this.quaternion, this.scale);
-            this.matrixWorldNeedsUpdate = true;
-        };
-
         init();
     </script>
 </body>
