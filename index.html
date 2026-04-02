@@ -2,16 +2,16 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>☆ 彡 珏然 // 田野 ♪ ★</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { margin: 0; background: #000005; overflow: hidden; font-family: 'Courier New', monospace; cursor: none; }
+        body { margin: 0; background: #000005; overflow: hidden; font-family: sans-serif; cursor: none; }
         #webgl-canvas { position: fixed; inset: 0; z-index: 1; }
-        .ui { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 40px; text-align: center; }
-        .title { color: #fff; font-weight: 900; font-style: italic; font-size: 1.4rem; letter-spacing: 0.15em; text-shadow: 0 0 30px rgba(180,100,255,0.6); }
-        #cursor { width: 4px; height: 4px; background: #fff; border-radius: 50%; position: fixed; pointer-events: none; z-index: 999; transform: translate(-50%, -50%); mix-blend-mode: difference; }
+        .ui { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 50px; text-align: center; }
+        .title { color: #fff; font-weight: 900; font-style: italic; font-size: 1.6rem; letter-spacing: 0.15em; text-shadow: 0 0 35px rgba(180,100,255,0.8); }
+        #cursor { width: 4px; height: 4px; background: #fff; border-radius: 50%; position: fixed; pointer-events: none; z-index: 1000; transform: translate(-50%, -50%); mix-blend-mode: difference; }
     </style>
 </head>
 <body class="bg-black">
@@ -20,42 +20,59 @@
     <div class="ui">
         <div>
             <h1 class="title uppercase">☆ 彡 珏然 // 田野 ♪ ★</h1>
-            <p class="text-[8px] tracking-[1.5em] text-white/20 mt-4 uppercase">77347 // 427Hz RESISTANCE_V3</p>
+            <p class="text-[8px] tracking-[1.5em] text-white/30 mt-4 uppercase">77347 // 427Hz SOVEREIGN_GALAXY</p>
         </div>
-        <div style="text-align: center; color: rgba(180,100,255,0.15); font-size: 8px; letter-spacing: 0.8em; text-transform: uppercase;">Hold to Initiate 44271 Collapse</div>
     </div>
 
     <script>
         let scene, camera, renderer, instMesh, blue, green;
         let mTarget = 0, curMorph = 0, clock = new THREE.Clock(), mouse = new THREE.Vector2();
-        const COUNT = 24427; // 锁定主权采样数
+        const COUNT = 32000; // 锁定主权采样数
 
         function init() {
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 5000);
-            camera.position.z = 1200;
+            camera.position.z = 1300;
 
             renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-canvas'), antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(1.0); // 强制 1:1，杜绝 Retina 畸变
+            renderer.setPixelRatio(1.0); // 强制 1:1 采样，杜绝 Retina 像素膨胀
 
-            // 【物理级修复】：每一个星点都是一个真实的 3D 四面体几何体
-            // 彻底杜绝 gl_PointSize 产生的方块 Bug
-            const geometry = new THREE.TetrahedronGeometry(1.2, 0); 
-            const material = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 });
+            // 银河感质色盘
+            const palette = [
+                new THREE.Color(0x6644ff), // 冷紫
+                new THREE.Color(0xaa00ff), // 品红
+                new THREE.Color(0x00ffff), // 青蓝
+                new THREE.Color(0xffcc00)  // 核心金
+            ];
+
+            // 【物理级修复】：使用微型四面体替代点，彻底杜绝方块
+            const geometry = new THREE.TetrahedronGeometry(1.5, 0); 
+            const material = new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.8 });
             
             instMesh = new THREE.InstancedMesh(geometry, material, COUNT);
             const dummy = new THREE.Object3D();
+            
             for (let i = 0; i < COUNT; i++) {
-                // 初始星云分布
-                dummy.position.set((Math.random()-0.5)*3000, (Math.random()-0.5)*2000, (Math.random()-0.5)*1200);
+                // 银河对数螺旋算法 (Spiral Physics)
+                let r = Math.pow(Math.random(), 0.6) * 1600;
+                let theta = Math.random() * Math.PI * 2 + r * 0.0035; 
+                let z = (Math.random() - 0.5) * (180 - r * 0.08); // 随半径减小的星盘厚度
+                
+                dummy.position.set(Math.cos(theta) * r, Math.sin(theta) * r, z);
                 dummy.updateMatrix();
                 instMesh.setMatrixAt(i, dummy.matrix);
+                
+                // 颜色映射：内金外紫
+                let colIdx = Math.floor(Math.random() * palette.length);
+                if (r < 180) colIdx = 3; 
+                instMesh.setColorAt(i, palette[colIdx]);
             }
             scene.add(instMesh);
 
-            blue = new THREE.Mesh(new THREE.SphereGeometry(6, 12, 12), new THREE.MeshBasicMaterial({color: 0x6644ff}));
-            green = new THREE.Mesh(new THREE.SphereGeometry(6, 12, 12), new THREE.MeshBasicMaterial({color: 0x00ffcc}));
+            // 双星内核
+            blue = new THREE.Mesh(new THREE.SphereGeometry(8, 16, 16), new THREE.MeshBasicMaterial({color: 0x6644ff}));
+            green = new THREE.Mesh(new THREE.SphereGeometry(8, 16, 16), new THREE.MeshBasicMaterial({color: 0x00ffcc}));
             scene.add(blue); scene.add(green);
 
             window.addEventListener('mousemove', (e) => {
@@ -74,10 +91,9 @@
             const t = clock.getElapsedTime();
             curMorph += (mTarget - curMorph) * 0.05;
             
-            // 双星纠缠轨道
-            const r = 320 + Math.sin(t*0.5)*60;
-            blue.position.set(Math.sin(t*0.7)*r + mouse.x/4, Math.cos(t*0.9)*r*0.3 + mouse.y/4, Math.sin(t*0.4)*100);
-            green.position.set(Math.sin(t*0.7+3.14)*r + mouse.x/4, Math.cos(t*0.9+3.14)*r*0.3 + mouse.y/4, Math.sin(t*0.4+3.14)*100);
+            const rOrbit = 350 + Math.sin(t*0.5)*70;
+            blue.position.set(Math.sin(t*0.7)*rOrbit + mouse.x/4, Math.cos(t*0.9)*rOrbit*0.3 + mouse.y/4, 0);
+            green.position.set(Math.sin(t*0.7+3.14)*rOrbit + mouse.x/4, Math.cos(t*0.9+3.14)*rOrbit*0.3 + mouse.y/4, 0);
 
             const dummy = new THREE.Object3D();
             const matrix = new THREE.Matrix4();
@@ -86,23 +102,22 @@
                 instMesh.getMatrixAt(i, matrix);
                 dummy.position.setFromMatrixPosition(matrix);
                 
-                // 银河螺旋逻辑
-                dummy.position.applyAxisAngle(new THREE.Vector3(0,0,1), 0.006 + curMorph*0.02);
+                // 银河自转
+                dummy.position.applyAxisAngle(new THREE.Vector3(0,0,1), 0.0025 + curMorph*0.015);
                 
-                // 44271 引力坍缩
+                // 44271 引力坍缩 (Sovereign Gravity)
                 let dB = dummy.position.distanceTo(blue.position);
                 let dG = dummy.position.distanceTo(green.position);
                 let pull = (1.0 / (dB * 0.02 + 1.0) + 1.0 / (dG * 0.02 + 1.0)) * curMorph;
-                
-                dummy.position.lerp(blue.position, pull * 0.04);
+                dummy.position.lerp(blue.position, pull * 0.05);
                 
                 dummy.updateMatrix();
                 instMesh.setMatrixAt(i, dummy.matrix);
             }
             instMesh.instanceMatrix.needsUpdate = true;
 
-            camera.position.x += (mouse.x/15 - camera.position.x) * 0.05;
-            camera.position.y += (mouse.y/15 - camera.position.y) * 0.05;
+            camera.position.x += (mouse.x/18 - camera.position.x) * 0.05;
+            camera.position.y += (mouse.y/18 - camera.position.y) * 0.05;
             camera.lookAt(0,0,0);
             renderer.render(scene, camera);
         }
