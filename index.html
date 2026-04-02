@@ -3,35 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>☆ 彡 44271_SOVEREIGN // THE_CIRCLE ♪ ★</title>
+    <title>☆ 彡 珏然 // 田野 ♪ ★ // THE_CIRCLE</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: 'Courier New', monospace; cursor: none; }
+        body { margin: 0; background: #000005; overflow: hidden; font-family: 'Courier New', monospace; cursor: none; }
         #webgl-canvas { position: fixed; inset: 0; z-index: 1; }
-        .ui { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 40px; }
-        .title { color: #fff; font-weight: 900; font-style: italic; font-size: 1.4rem; letter-spacing: 0.15em; text-shadow: 0 0 20px rgba(180,100,255,0.4); text-align: center; width: 100%; }
-        #hud { position: fixed; top: 40px; right: 40px; text-align: right; color: rgba(180,150,255,0.35); font-size: 9px; letter-spacing: 0.2em; line-height: 1.8; }
+        .ui { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 50px; text-align: center; }
+        .ui * { pointer-events: auto; }
+        .title { color: #fff; font-weight: 900; font-style: italic; font-size: 1.6rem; letter-spacing: 0.15em; text-shadow: 0 0 25px rgba(180,100,255,0.5); }
         #cursor { width: 4px; height: 4px; background: #fff; border-radius: 50%; position: fixed; pointer-events: none; z-index: 999; transform: translate(-50%, -50%); mix-blend-mode: difference; }
-        #ring { width: 20px; height: 20px; border: 1px solid rgba(0,255,170,0.4); border-radius: 50%; position: fixed; pointer-events: none; z-index: 998; transform: translate(-50%, -50%); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        #ring { width: 22px; height: 22px; border: 1px solid rgba(0,255,170,0.4); border-radius: 50%; position: fixed; pointer-events: none; z-index: 998; transform: translate(-50%, -50%); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     </style>
 </head>
-<body>
+<body class="bg-black">
     <div id="cursor"></div>
     <div id="ring"></div>
     <canvas id="webgl-canvas"></canvas>
 
     <div class="ui">
-        <div id="hud">
-            <b>ARCHIVE_77347</b><br>
-            STATUS: RESURRECTED<br>
-            FREQ: 427.00 Hz<br>
-            ALGO: 44271_FIXED
+        <div>
+            <h1 class="title uppercase">☆ 彡 珏然 // 田野 ♪ ★</h1>
+            <p class="text-[8px] tracking-[1.5em] text-white/30 mt-4 uppercase">77347 // 427Hz Resonance</p>
         </div>
-        <h1 class="title uppercase">田野 = 魏珏然 = 美学公式</h1>
+        <div style="text-align: center; color: rgba(255,255,255,0.2); font-size: 8px; letter-spacing: 0.8em; text-transform: uppercase;">Hold to Initiate 44271 Collapse</div>
         <div class="flex justify-between items-end px-10 mb-4 text-[8px] opacity-20 tracking-widest uppercase text-white">
-            <div>WEI_JUERAN_DESIGN</div>
-            <div>SYNC_NODE // THE_CIRCLE</div>
+            <div>☆ 彡 WEI_JUERAN_DESIGN</div>
+            <div>SYNC_NODE // THE_CIRCLE ★</div>
         </div>
     </div>
 
@@ -45,51 +43,51 @@
 
         void main() {
             vec3 p = position;
-            float t427 = uTime * 4.27;
+            float t427 = uTime * 4.27; // 锁定主权频率
 
-            // 1. 银河重塑 (Galaxy Reconstruction)
+            // 1. 银河螺旋重构 (Sovereign Galaxy Spiral)
             vec3 pHome = position;
-            // 增加旋转深度与厚度系数
             float rHome = length(pHome.xy);
-            float angle = rHome * 0.012 + t427 * 0.1;
+            // 增加螺旋紧致度与 Z 轴深度
+            float angle = rHome * 0.01 + t427 * 0.08;
             vec3 pSpace = vec3(
                 cos(angle) * pHome.x - sin(angle) * pHome.y,
                 sin(angle) * pHome.x + cos(angle) * pHome.y,
-                pHome.z + sin(rHome * 0.05 + t427) * 400.0
+                pHome.z + sin(rHome * 0.02 + t427) * 450.0
             );
 
             p = mix(pHome, pSpace, uMorph);
 
-            // 2. 引力纠缠 (44271 Gravity)
+            // 2. 双星引力纠缠 (44271 Entanglement)
             float dB = distance(p, uB); float dG = distance(p, uG);
-            float pullB = 1.0 / (pow(dB, 1.3) * 0.02 + 1.0);
-            float pullG = 1.0 / (pow(dG, 1.3) * 0.02 + 1.0);
+            // 指数级引力坍缩
+            float pullB = 1.0 / (pow(dB, 1.2) * 0.03 + 1.0);
+            float pullG = 1.0 / (pow(dG, 1.2) * 0.03 + 1.0);
             float totalPull = pullB + pullG;
 
-            // 修正引力导致的位移，避免粒子重叠产生色块
-            p += normalize(uB - p) * pullB * 120.0 * uMorph;
-            p += normalize(uG - p) * pullG * 120.0 * uMorph;
+            p += normalize(uB - p) * pullB * (150.0 + sin(t427) * 30.0 * uMorph);
+            p += normalize(uG - p) * pullG * (150.0 + cos(t427) * 30.0 * uMorph);
 
-            vCol = mix(color, vec3(0.5, 0.3, 1.0), pullB);
+            // 颜色采样：魏珏然(紫)与田野(青)
+            vCol = mix(color, vec3(0.6, 0.4, 1.0), pullB);
             vCol = mix(vCol, vec3(0.0, 1.0, 0.8), pullG);
             
-            // 深度 Alpha 衰减，增强空间感
-            vA = (0.2 + totalPull * 0.8) * clamp(1.0 - (length(p) / 2500.0), 0.0, 1.0);
+            // 空间透明度衰减，增强深邃感
+            vA = (0.3 + totalPull * 0.7) * clamp(1.0 - (length(p) / 2800.0), 0.0, 1.0);
 
             vec4 mvp = modelViewMatrix * vec4(p, 1.0);
-            // 关键修复：锁定 PointSize 范围，禁止产生巨大色块
-            gl_PointSize = clamp((2.5 * (1000.0 / -mvp.z)) * (1.0 + totalPull * 3.0), 1.0, 12.0);
+            // 核心修复：严禁产生巨大色块，锁定粒子渲染上限
+            gl_PointSize = clamp((2.8 * (1000.0 / -mvp.z)) * (1.0 + totalPull * 4.0), 1.0, 10.0);
             gl_Position = projectionMatrix * mvp;
         }
     </script>
-    
     <script id="fShader" type="x-shader/x-fragment">
         varying vec3 vCol; varying float vA;
         void main() {
-            // 完美圆点 discard
+            // 极致圆润丢弃，模拟纯净星点
             float d = length(gl_PointCoord - 0.5);
             if (d > 0.5) discard;
-            // 边缘羽化，模拟星光质感
+            // 增加星光羽化质感
             float strength = 1.0 - (d * 2.0);
             gl_FragColor = vec4(vCol, vA * strength);
         }
@@ -110,17 +108,18 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
+            // 提升粒子浓度至 100,000 以对齐 44271 质感
             const geo = new THREE.BufferGeometry();
-            const count = 100000; // 优化粒子数量
+            const count = 100000;
             const pos = new Float32Array(count * 3);
             const col = new Float32Array(count * 3);
 
             for(let i=0; i<count; i++) {
-                pos[i*3] = (Math.random()-0.5) * 2500;
+                pos[i*3] = (Math.random()-0.5) * 2600;
                 pos[i*3+1] = (Math.random()-0.5) * 2000;
                 pos[i*3+2] = (Math.random()-0.5) * 1200;
-                let c = 0.7 + Math.random() * 0.3;
-                col[i*3] = c; col[i*3+1] = c; col[i*3+2] = c + 0.1;
+                let c = 0.8 + Math.random() * 0.2;
+                col[i*3] = c; col[i*3+1] = c; col[i*3+2] = c + 0.05;
             }
             geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
             geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
@@ -136,8 +135,10 @@
             });
 
             points = new THREE.Points(geo, mat); scene.add(points);
-            blue = new THREE.Mesh(new THREE.SphereGeometry(3), new THREE.MeshBasicMaterial({color: 0x6644ff}));
-            green = new THREE.Mesh(new THREE.SphereGeometry(3), new THREE.MeshBasicMaterial({color: 0x00ffcc}));
+            
+            // 双星内核：刺客(魏)与赌徒(田)
+            blue = new THREE.Mesh(new THREE.SphereGeometry(4), new THREE.MeshBasicMaterial({color: 0x6644ff}));
+            green = new THREE.Mesh(new THREE.SphereGeometry(4), new THREE.MeshBasicMaterial({color: 0x00ffcc}));
             scene.add(blue); scene.add(green);
 
             window.addEventListener('mousemove', (e) => {
@@ -150,6 +151,7 @@
             });
             window.addEventListener('mousedown', () => mTarget = 1);
             window.addEventListener('mouseup', () => mTarget = 0);
+
             animate();
         }
 
@@ -157,12 +159,13 @@
             requestAnimationFrame(animate);
             const t = clock.getElapsedTime();
             curMorph += (mTarget - curMorph) * 0.05;
+            
             points.material.uniforms.uTime.value = t;
             points.material.uniforms.uMorph.value = curMorph;
 
-            const r = 300 + Math.sin(t * 0.5) * 50;
-            blue.position.set(Math.sin(t * 0.6) * r + mouse.x/4, Math.cos(t * 0.8) * r * 0.4 + mouse.y/4, Math.sin(t * 0.5) * 100);
-            green.position.set(Math.sin(t * 0.6 + 3.14) * r + mouse.x/4, Math.cos(t * 0.8 + 3.14) * r * 0.4 + mouse.y/4, Math.sin(t * 0.5 + 3.14) * 100);
+            const r = 280 + Math.sin(t * 0.5) * 80;
+            blue.position.set(Math.sin(t * 0.7) * r + mouse.x/4, Math.cos(t * 0.9) * r * 0.3 + mouse.y/4, Math.sin(t * 0.4) * 200);
+            green.position.set(Math.sin(t * 0.7 + 3.14) * r + mouse.x/4, Math.cos(t * 0.9 + 3.14) * r * 0.3 + mouse.y/4, Math.sin(t * 0.4 + 3.14) * 200);
 
             points.material.uniforms.uB.value.copy(blue.position);
             points.material.uniforms.uG.value.copy(green.position);
@@ -170,8 +173,10 @@
             camera.position.x += (mouse.x/15 - camera.position.x) * 0.05;
             camera.position.y += (mouse.y/15 - camera.position.y) * 0.05;
             camera.lookAt(0,0,0);
+
             renderer.render(scene, camera);
         }
+
         init();
     </script>
 </body>
