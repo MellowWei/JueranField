@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>44271_ARCHIVE_V2</title>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>44271_SOVEREIGN_V3</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; cursor: none; }
-        #webgl-canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+        body { margin: 0; background: #000002; overflow: hidden; font-family: sans-serif; cursor: none; }
+        #webgl-canvas { position: fixed; inset: 0; z-index: 1; }
         .ui { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 50px; text-align: center; }
-        .title { color: #fff; font-weight: 900; font-style: italic; font-size: 1.6rem; letter-spacing: 0.1em; text-shadow: 0 0 25px rgba(0,255,170,0.6); }
+        .title { color: #fff; font-weight: 900; font-style: italic; font-size: 1.4rem; letter-spacing: 0.2em; text-shadow: 0 0 30px rgba(180,100,255,0.6); }
         #cursor { width: 4px; height: 4px; background: #fff; border-radius: 50%; position: fixed; pointer-events: none; z-index: 999; transform: translate(-50%, -50%); mix-blend-mode: difference; }
     </style>
 </head>
@@ -21,118 +20,99 @@
     <div class="ui">
         <div>
             <h1 class="title uppercase">☆ 彡 珏然 // 田野 ♪ ★</h1>
-            <p class="text-[8px] tracking-[1.5em] text-white/30 mt-4 uppercase">77347 // 427Hz SYNC_ACTIVE_V2</p>
+            <p class="text-[8px] tracking-[1.5em] text-white/30 mt-4 uppercase">77347 // 427Hz ULTIMATE_STABILITY</p>
         </div>
     </div>
 
-    <script id="vShader" type="x-shader/x-vertex">
-        uniform float uTime;
-        uniform float uMorph;
-        uniform vec3 uB;
-        uniform vec3 uG;
-        varying vec3 vCol;
-        varying float vA;
-
-        void main() {
-            vec3 p = position;
-            float t427 = uTime * 4.27;
-
-            // 1. 银河螺旋逻辑 (Galaxy)
-            float r = length(p.xy);
-            float angle = r * 0.015 + t427 * 0.1;
-            vec3 pSpace = vec3(
-                cos(angle) * p.x - sin(angle) * p.y,
-                sin(angle) * p.x + cos(angle) * p.y,
-                p.z + sin(r * 0.05 + t427) * 300.0
-            );
-            p = mix(position, pSpace, uMorph);
-
-            // 2. 暴力引力逻辑 (44271 Gravity)
-            float dB = distance(p, uB); float dG = distance(p, uG);
-            float pull = 1.0 / (pow(dB, 1.2) * 0.02 + 1.0) + 1.0 / (pow(dG, 1.2) * 0.02 + 1.0);
-            p += normalize(uB - p) * pull * 100.0 * uMorph;
-
-            vCol = color + (pull * vec3(0.0, 1.0, 0.8));
-            vA = (0.3 + pull * 0.7) * (1.0 - uMorph * 0.2);
-
-            vec4 mvp = modelViewMatrix * vec4(p, 1.0);
-            
-            // 【核弹修复】：彻底粉碎 gl_PointSize 膨胀，强行锁定在 2px - 6px
-            // 无论你是什么屏幕，最高只允许 6 像素。
-            gl_PointSize = clamp(4.0 * (1000.0 / -mvp.z), 1.5, 6.0);
-            gl_Position = projectionMatrix * mvp;
-        }
-    </script>
-
-    <script id="fShader" type="x-shader/x-fragment">
-        varying vec3 vCol; varying float vA;
-        void main() {
-            if (length(gl_PointCoord - 0.5) > 0.5) discard;
-            gl_FragColor = vec4(vCol, vA);
-        }
-    </script>
-
     <script>
-        let scene, camera, renderer, points, blue, green, mTarget=0, curMorph=0;
-        const clock = new THREE.Clock(), mouse = new THREE.Vector3();
+        let scene, camera, renderer, instMesh, blue, green;
+        let mTarget = 0, curMorph = 0, clock = new THREE.Clock(), mouse = new THREE.Vector2();
+        const COUNT = 44271; // 锁定主权数字
 
         function init() {
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 5000);
             camera.position.z = 1200;
 
-            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-canvas'), antialias: true, alpha: true });
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-canvas'), antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            // 强制降采样，不给 Retina 任何作妖的机会
-            renderer.setPixelRatio(1.0); 
+            renderer.setPixelRatio(window.devicePixelRatio);
 
-            const geo = new THREE.BufferGeometry();
-            const count = 80000;
-            const pos = new Float32Array(count * 3), col = new Float32Array(count * 3);
-            for(let i=0; i<count; i++) {
-                pos[i*3] = (Math.random()-0.5)*2600; pos[i*3+1] = (Math.random()-0.5)*2000; pos[i*3+2] = (Math.random()-0.5)*1000;
-                col[i*3]=0.9; col[i*3+1]=0.9; col[i*3+2]=1.0;
+            // 【核心重构】：使用 InstancedMesh 替代 Points，彻底杜绝 gl_PointSize 产生的方块
+            const geometry = new THREE.SphereGeometry(1.2, 4, 4); // 每个粒子是一个真正的微型 3D 球体
+            const material = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 });
+            
+            instMesh = new THREE.InstancedMesh(geometry, material, COUNT);
+            
+            // 初始化矩阵
+            const dummy = new THREE.Object4D();
+            for (let i = 0; i < COUNT; i++) {
+                dummy.position.set((Math.random()-0.5)*2600, (Math.random()-0.5)*2000, (Math.random()-0.5)*1000);
+                dummy.updateMatrix();
+                instMesh.setMatrixAt(i, dummy.matrix);
             }
-            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+            scene.add(instMesh);
 
-            const mat = new THREE.ShaderMaterial({
-                uniforms: { uTime:{value:0}, uMorph:{value:0}, uB:{value:new THREE.Vector3()}, uG:{value:new THREE.Vector3()} },
-                vertexShader: document.getElementById('vShader').textContent,
-                fragmentShader: document.getElementById('fShader').textContent,
-                transparent:true, blending:THREE.AdditiveBlending, depthWrite:false
-            });
-
-            points = new THREE.Points(geo, mat); scene.add(points);
-            blue = new THREE.Mesh(new THREE.SphereGeometry(2), new THREE.MeshBasicMaterial({color:0x6644ff}));
-            green = new THREE.Mesh(new THREE.SphereGeometry(2), new THREE.MeshBasicMaterial({color:0x00ffcc}));
+            blue = new THREE.Mesh(new THREE.SphereGeometry(10, 16, 16), new THREE.MeshBasicMaterial({color: 0x6644ff}));
+            green = new THREE.Mesh(new THREE.SphereGeometry(10, 16, 16), new THREE.MeshBasicMaterial({color: 0x00ffcc}));
             scene.add(blue); scene.add(green);
 
             window.addEventListener('mousemove', (e) => {
-                mouse.x = (e.clientX - window.innerWidth/2); mouse.y = -(e.clientY - window.innerHeight/2);
-                document.getElementById('cursor').style.left = e.clientX + 'px'; document.getElementById('cursor').style.top = e.clientY + 'px';
+                mouse.x = (e.clientX - window.innerWidth/2);
+                mouse.y = -(e.clientY - window.innerHeight/2);
+                document.getElementById('cursor').style.left = e.clientX + 'px';
+                document.getElementById('cursor').style.top = e.clientY + 'px';
             });
             window.addEventListener('mousedown', () => mTarget = 1);
             window.addEventListener('mouseup', () => mTarget = 0);
             animate();
         }
 
+        // 这里的 44271 算法直接作用于矩阵空间
         function animate() {
             requestAnimationFrame(animate);
             const t = clock.getElapsedTime();
             curMorph += (mTarget - curMorph) * 0.05;
-            points.material.uniforms.uTime.value = t;
-            points.material.uniforms.uMorph.value = curMorph;
-            const r = 300 + Math.sin(t*0.5)*50;
+            
+            const r = 320 + Math.sin(t*0.5)*60;
             blue.position.set(Math.sin(t*0.7)*r + mouse.x/4, Math.cos(t*0.9)*r*0.3 + mouse.y/4, 0);
             green.position.set(Math.sin(t*0.7+3.14)*r + mouse.x/4, Math.cos(t*0.9+3.14)*r*0.3 + mouse.y/4, 0);
-            points.material.uniforms.uB.value.copy(blue.position);
-            points.material.uniforms.uG.value.copy(green.position);
+
+            const dummy = new THREE.Object3D();
+            const matrix = new THREE.Matrix4();
+            
+            for (let i = 0; i < COUNT; i++) {
+                instMesh.getMatrixAt(i, matrix);
+                dummy.position.setFromMatrixPosition(matrix);
+                
+                // 银河旋转 + 引力坍缩
+                let dist = dummy.position.length();
+                let angle = 0.01 * curMorph;
+                dummy.position.applyAxisAngle(new THREE.Vector3(0,0,1), angle);
+                
+                // 向双星中心产生的纠缠引力
+                let dB = dummy.position.distanceTo(blue.position);
+                let dG = dummy.position.distanceTo(green.position);
+                let pull = (1.0 / (dB * 0.02 + 1.0) + 1.0 / (dG * 0.02 + 1.0)) * curMorph * 15.0;
+                
+                dummy.position.lerp(blue.position, pull * 0.02);
+                
+                dummy.updateMatrix();
+                instMesh.setMatrixAt(i, dummy.matrix);
+            }
+            instMesh.instanceMatrix.needsUpdate = true;
+
             camera.position.x += (mouse.x/15 - camera.position.x) * 0.05;
             camera.position.y += (mouse.y/15 - camera.position.y) * 0.05;
             camera.lookAt(0,0,0);
             renderer.render(scene, camera);
         }
+
+        THREE.Object3D.prototype.updateMatrix = function () {
+            this.matrix.compose(this.position, this.quaternion, this.scale);
+            this.matrixWorldNeedsUpdate = true;
+        };
+
         init();
     </script>
 </body>
